@@ -23,12 +23,18 @@ class CaptureThemAllTest(unittest.TestCase):
         result = cta.get_possible_knight_moves((4, 4))
         self.assertEquals(len(result), 8)
 
+        result = cta.get_possible_knight_moves((2, 1))
+        self.assertEquals(len(result), 3)
+
+        cta.visited = []
+        result = cta.get_possible_knight_moves((3, 2))
+        self.assertEquals(len(result), 6)
+
     def test_search(self):
         cta = program.CaptureThemAll('a1', 'b3', 'c5')
         result = cta.search()
-        self.assertEquals(result, 2)
+        self.assertEquals(result, 3)
 
         cta = program.CaptureThemAll('b1', 'c3', 'a3')
         result = cta.search()
         self.assertEquals(result, 3)
-

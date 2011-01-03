@@ -1,3 +1,4 @@
+import itertools
 
 
 class CaptureThemAll(object):
@@ -18,47 +19,47 @@ class CaptureThemAll(object):
         rows = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
         return (rows.index(pos[0]) + 1, int(pos[1]))
 
-    def search(self, pos=None, moves=None, length=1):
-        if pos is None:
-            pos = self.knight
-        if moves is None:
-            moves = self.get_possible_knight_moves(pos)
-
-        for m in moves:
-            if m == self.queen:
-                self.queen_found = True
-            if m == self.rook:
-                self.rook_found = True
+    def search(self, pos=None, moves=None, length=0):
+        open = []
+        if pos is None and moves is None:
+            moves = [[self.knight]]
 
         while moves:
-            if (True, True) == (self.queen_found, self.rook_found):
-                break
-
-            newpos = moves[0]
+            children = moves[0]
             del moves[0]
-            moves = self.get_possible_knight_moves(newpos)
+            for newpos in children:
+                if sum((self.queen_found, self.rook_found)) == 2:
+                    return length
+                open.append(self.get_possible_knight_moves(newpos))
 
-            length += 1
-            self.search(newpos, moves, length)
-        return length
+                if newpos == self.queen:
+                    self.queen_found = True
+                    self.visited = []
+                    open = [self.get_possible_knight_moves(newpos)]
+                    break
+                elif newpos == self.rook:
+                    self.rook_found = True
+                    self.visited = []
+                    open = [self.get_possible_knight_moves(newpos)]
+                    break
+
+        length += 1
+        return self.search(moves=open, length=length)
 
     def get_possible_knight_moves(self, pos):
         self.visited.append(pos)
         moves = []
-        for x, y in [(2, 1), (2, -1), (-2, 1), (-2, -1)]:
-            newpos = (pos[0] + x, pos[1] + y)
-            if newpos in self.visited:
+        for x, y in itertools.permutations([2, 1, -1, -2], 2):
+            if sum((x,y)) == 0:
                 continue
 
-            if not self.is_out_of_bounds(newpos):
+            newpos = (pos[0] + x, pos[1] + y)
+
+            if not self.is_out_of_bounds(newpos) and not newpos in self.visited:
                 moves.append(newpos)
-            newpos = list(newpos)
-            newpos.reverse()
-            if not self.is_out_of_bounds(newpos):
-                moves.append(tuple(newpos))
 
         return moves
 
     def is_out_of_bounds(self, pos):
-        return min(pos) <= 1 or max(pos) >= self.board[0]
+        return min(pos) < 1 or max(pos) >= self.board[0]
 
