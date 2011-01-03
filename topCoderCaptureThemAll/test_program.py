@@ -37,7 +37,7 @@ class CaptureThemAllTest(unittest.TestCase):
 
         cta = program.CaptureThemAll('a1', 'b3', 'c5')
         result = cta.search()
-        self.assertEquals(result, 3)
+        self.assertEquals(result, 2)
 
         cta = program.CaptureThemAll('b1', 'c3', 'a3')
         result = cta.search()
@@ -49,4 +49,4 @@ class CaptureThemAllTest(unittest.TestCase):
 
         cta = program.CaptureThemAll('h8', 'e2', 'd2')
         result = cta.search()
-        self.assertEquals(result, 6)
+        self.assertEquals(result, 7)
