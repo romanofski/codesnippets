@@ -25,8 +25,7 @@ class CaptureThemAll(object):
             moves = [[self.knight]]
 
         while moves:
-            children = moves[0]
-            del moves[0]
+            children = moves.pop()
             open = [self.get_possible_knight_moves(x) for x in children]
             if self.queen in children:
                 self.queen_found = True

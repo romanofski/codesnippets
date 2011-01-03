@@ -49,4 +49,4 @@ class CaptureThemAllTest(unittest.TestCase):
 
         cta = program.CaptureThemAll('h8', 'e2', 'd2')
         result = cta.search()
-        self.assertEquals(result, 7)
+        self.assertEquals(result, 6)
