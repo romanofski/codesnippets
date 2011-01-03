@@ -31,6 +31,10 @@ class CaptureThemAllTest(unittest.TestCase):
         self.assertEquals(len(result), 6)
 
     def test_search(self):
+        cta = program.CaptureThemAll('a1', 'a2', 'b2')
+        result = cta.search()
+        self.assertEquals(result, 6)
+
         cta = program.CaptureThemAll('a1', 'b3', 'c5')
         result = cta.search()
         self.assertEquals(result, 3)
@@ -38,3 +42,11 @@ class CaptureThemAllTest(unittest.TestCase):
         cta = program.CaptureThemAll('b1', 'c3', 'a3')
         result = cta.search()
         self.assertEquals(result, 3)
+
+        cta = program.CaptureThemAll('a5', 'b7', 'e4')
+        result = cta.search()
+        self.assertEquals(result, 3)
+
+        cta = program.CaptureThemAll('h8', 'e2', 'd2')
+        result = cta.search()
+        self.assertEquals(result, 6)

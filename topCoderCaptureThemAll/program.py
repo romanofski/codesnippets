@@ -25,16 +25,17 @@ class CaptureThemAll(object):
             moves = [[self.knight]]
 
         while moves:
+            if sum((self.queen_found, self.rook_found)) == 2:
+                return length
             children = moves[0]
             del moves[0]
             for newpos in children:
-                if sum((self.queen_found, self.rook_found)) == 2:
-                    return length
                 open.append(self.get_possible_knight_moves(newpos))
 
                 if newpos == self.queen:
                     self.queen_found = True
                     self.visited = []
+                    moves = []
                     open = [self.get_possible_knight_moves(newpos)]
                     break
                 elif newpos == self.rook:
