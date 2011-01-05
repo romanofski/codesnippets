@@ -4,7 +4,6 @@ import itertools
 class CaptureThemAll(object):
 
     board = (9,9)
-    searchmax = 10
     queen_found = False
     rook_found = False
 
