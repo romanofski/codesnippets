@@ -10,6 +10,14 @@ class BinaryTreeNode(object):
     def __init__(self, value):
         self.value = value
 
+    def get_children(self):
+        children = []
+        if self.left is not None:
+            children.append(self.left)
+        if self.right is not None:
+            children.append(self.right)
+        return children
+
     def insert(self, value, node=None):
         if node is None:
             node = self
@@ -27,6 +35,16 @@ class BinaryTreeNode(object):
         if value <= node.value:
             self.insert(value, node.left)
 
+    def delete(self, value, node=None):
+        if node is None:
+            node = self
+        if node.left is not None and node.left.value == value:
+            node.left = None
+        if node.right is not None and node.right.value == value:
+            node.right = None
+        for child in self.get_children():
+            child.delete(value)
+
     def __str__(self):
         direction = 'r'
         if self.__parent__:
@@ -42,13 +60,6 @@ class BinaryTreeNode(object):
         if node is None:
             node = self
             result.append(node.value)
-        children = []
-        if node.left is not None:
-            children.append(node.left)
-        if node.right is not None:
-            children.append(node.right)
-        for child in children:
-            sub = [child.value]
-            sub += self.show_tree(child)
-            result.append(sub)
+        for child in self.get_children():
+            result.append(child.show_tree())
         return result
