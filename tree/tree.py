@@ -7,16 +7,15 @@ class BinaryTreeNode(object):
     right = None
     __parent__ = None
 
-    def __init__(self, value):
+    def __init__(self, value, left=None, right=None, parent=None):
         self.value = value
+        self.left = left
+        self.right = right
+        self.__parent__ = parent
 
     def get_children(self):
-        children = []
-        if self.left is not None:
-            children.append(self.left)
-        if self.right is not None:
-            children.append(self.right)
-        return children
+        children = [self.left, self.right]
+        return [x for x in children if x is not None]
 
     def insert(self, value, node=None):
         if node is None:

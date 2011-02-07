@@ -29,6 +29,8 @@ class BinaryTreeTest(unittest.TestCase):
         self.assertEquals(t.show_tree(), [5, [2, [4]], [10, [15, [11]]]])
         t.delete(11)
         self.assertEquals(t.show_tree(), [5, [2, [4]], [10, [15]]])
+        t.delete(10)
+        self.assertEquals(t.show_tree(), [5, [2, [4]], [15]])
 
     def test_show_tree(self):
         t = tree.BinaryTreeNode(3)
