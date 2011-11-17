@@ -1,7 +1,12 @@
 import argparse
 import base64
+import Image
 import os
 import lxml.html
+
+
+PRINT_RESOLUTION = (150, 150)
+IMG_FILENAME = 'Fig{0}.{1}'
 
 
 def extract_images(xhtmlfile, chnumber):
@@ -15,9 +20,15 @@ def extract_images(xhtmlfile, chnumber):
     for img in parsed.xpath('//img'):
         i += 1
         imgdata = img.get('src')
-        imgfilename = 'Fig{0}.{1}.png'.format(chnumber, i)
+        imgfilename = IMG_FILENAME.format(chnumber, i)
         data = base64.b64decode(imgdata[20:])
-        open(os.path.join(imgdir, imgfilename), 'w').write(data)
+
+        # save the PNG data, reopen it *doh* and write the TIFF file
+        open(os.path.join(imgdir, imgfilename + '.png'), 'w').write(data)
+        Image.open(os.path.join(imgdir, imgfilename + '.png')).save(
+            os.path.join(imgdir, imgfilename + '.tif'), 'TIFF',
+            dpi=PRINT_RESOLUTION)
+        os.unlink(os.path.join(imgdir, imgfilename + '.png'))
         print('Image written: {0}'.format(i))
 
 
