@@ -4,6 +4,7 @@
 
   <xsl:output method="xml" encoding="UTF-8" indent="yes" />
 
+  <xsl:variable name="vocab" select="document('vocab.xml')" />
   <xsl:variable name="all_linguas">de en en_GB fr</xsl:variable>
   <xsl:variable name="splitstr">
     <xsl:value-of select="' '" />
@@ -30,7 +31,7 @@
       <xsl:when test="contains($tail, $splitstr)">
         <xsl:call-template name="create_option">
           <xsl:with-param name="value" select="$lang" />
-          <xsl:with-param name="title" select="''" />
+          <xsl:with-param name="title" select="$vocab/vocab/item[@value=$lang]" />
         </xsl:call-template>
 
         <xsl:call-template name="tokenize">
@@ -40,7 +41,7 @@
       <xsl:otherwise>
         <xsl:call-template name="create_option">
           <xsl:with-param name="value" select="$tail" />
-          <xsl:with-param name="title" select="''" />
+          <xsl:with-param name="title" select="$vocab/vocab/item[@value=$tail]" />
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
