@@ -6,8 +6,9 @@ class BinaryTreeTest(unittest.TestCase):
 
     def test_insert(self):
         t = tree.BinaryTreeNode(3)
-        t.insert(5)
-        t.insert(4)
+        t = t.insert(5)
+        import pdb; pdb.set_trace() 
+        t = t.insert(4)
         self.assertEquals(t.left, None)
         self.assertEquals(t.right.value, 5)
         self.assertEquals(t.right.left.value, 4)
