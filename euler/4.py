@@ -23,6 +23,18 @@ def is_palindrome(mapping):
     return True
 
 
+def bruteforce():
+    x = 900
+    while x <= 1000:
+        y = 900
+        while y <= 1000:
+            if is_palindrome(x * y):
+                print "{x} ({y})".format(x=(x, y), y=x * y)
+            y += 1
+        x += 1
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
+    bruteforce()
