@@ -1,5 +1,4 @@
 import doctest
-import itertools
 
 
 def search(limit):
@@ -16,17 +15,22 @@ def search(limit):
     # step is divisable by twenty
     x = limit
     y = backwards[0]
-    while y != limit:
+    divisable = []
+    while not divisable:
         for y in backwards:
             rest = x % y
             if rest != 0:
-                print (x, y, rest)
-                break
-            if y == 20:
+                divisable.append((x, y, rest))
+        if divisable:
+            x = x + (divisable[0][1] - divisable[0][2])
+            if x % 500000 == 0:
                 print x
-        x = x * y
+            divisable = []
+        else:
+            break
+    print x
 
 
 if __name__ == "__main__":
-    # doctest.testmod()
+    #doctest.testmod()
     search(20)
