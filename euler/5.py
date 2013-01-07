@@ -7,7 +7,7 @@ def search(limit):
     >>> search(10)
     2520
     >>> search(20)
-    2323
+    232792560
     """
     backwards = range(1, limit + 1)
     # the number has to be divisable by 20, which means we step all 20
