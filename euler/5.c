@@ -48,6 +48,7 @@ long search (int limit)
     }
   }
   /* nothing found :( */
+  free (j);
   return 0;
 }
 
