@@ -1,26 +1,44 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #define UPPER_BOUND 232792560
 
+
+/* prototypes */
+void get_searchspace (int *space, int length);
+
+void get_searchspace (int *space,
+                      int length)
+{
+  int i;
+
+  /* calculate all multiples of i and add it to our array if it's not in
+   * there */
+  for (i = 1; i <= length; i++) {
+    space[i-1] = i;
+  }
+}
 
 long search (int limit)
 {
   int   rest = 1;
   long  x = limit;
-  int   i;
+  int  *j = malloc(limit * sizeof(int));
+  int  *start;
 
-  while (1) {
-    for (i = 1; i <= limit; i++) {
-      rest = x % i;
-      if (rest != 0) {
-        x += limit;
-        break;
-      }
+  get_searchspace(j, limit);
+  start = j;
+
+  while (*j <= limit) {
+    rest = x % *j;
+    if (rest != 0) {
+      x += limit;
+      j = start;
+      continue;
     }
+    j++;
 
-    /* i iterated to the limit which means, all numbers are
-     * multiplicates of limit */
-    if ( i >= limit) {
+    if (*j == 0) {
       return x;
     }
 
@@ -29,6 +47,8 @@ long search (int limit)
       return x;
     }
   }
+  /* nothing found :( */
+  return 0;
 }
 
 int main(int argc, char *argv[]) {
