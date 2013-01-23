@@ -5,9 +5,9 @@
 
 
 /* prototypes */
-void get_searchspace (int *space, int length);
+void fill_searchspace (int *space, int length);
 
-void get_searchspace (int *space,
+void fill_searchspace (int *space,
                       int length)
 {
   int i;
@@ -23,22 +23,22 @@ long search (int limit)
 {
   int   rest = 1;
   long  x = limit;
-  int  *j = malloc(limit * sizeof(int));
+  int  *space = malloc(limit * sizeof(int));
   int  *start;
 
-  get_searchspace(j, limit);
-  start = j;
+  fill_searchspace(space, limit);
+  start = space;
 
-  while (*j <= limit) {
-    rest = x % *j;
+  while (*space <= limit) {
+    rest = x % *space;
     if (rest != 0) {
       x += limit;
-      j = start;
+      space = start;
       continue;
     }
-    j++;
+    space++;
 
-    if (*j == 0) {
+    if (*space == 0) {
       return x;
     }
 
@@ -48,7 +48,7 @@ long search (int limit)
     }
   }
   /* nothing found :( */
-  free (j);
+  free (space);
   return 0;
 }
 
