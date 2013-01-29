@@ -7,16 +7,45 @@
 /* prototypes */
 void fill_searchspace (int *space, int length);
 
-void fill_searchspace (int *space,
-                      int length)
+int cmp(const void *a, const void *b)
 {
-  int i;
+  int *va = (int*) a;
+  int *vb = (int*) b;
+  if (*va == *vb)
+    return 0;
+  else
+    return -1 ? (*va < *vb) : 1;
+}
 
-  /* calculate all multiples of i and add it to our array if it's not in
-   * there */
-  for (i = 1; i <= length; i++) {
-    space[i-1] = i;
+
+/* Here we calculate all multiples up to @length. What we want is all
+ * numbers which are not multiples.
+ * e.g. given the search space from 1 - 10. We know that everything
+ * which is dividable by 10 is also dividable by 2. Therefore, ignore 2,
+ * keep 10. Same for 9: everything which is dividable by 9 is also
+ * dividable by 3. Keep 9, throw away 3.
+ */
+void fill_searchspace (int *space,
+                       int length)
+{
+  int i, j;
+
+  for (i=0; i <= length; i++) {
+    space[i] = i;
   }
+
+  j = 2;
+  while (j <= length) {
+    for (i=length; i >= 0; i--) {
+      if (space[i] % j == 0 && !(i == j))
+        space[j] = 0;
+        j++;
+    }
+  }
+
+  /* sort it, otherwise we have a few items with 0.
+   * qsort will do the trick */
+  qsort (space, length, sizeof (int), cmp);
 }
 
 long search (int limit)
@@ -38,18 +67,19 @@ long search (int limit)
     }
     space++;
 
-    if (*space == 0) {
-      return x;
+    /* Either we were able to div all integers, which means we've found
+     * a solution, or we hit the UPPER_BOUND, which means our
+     * implementaiton is bugged.
+     */
+    if (*space == 0 || x == UPPER_BOUND) {
+      break;
     }
 
-    /* this is my emergency break */
-    if (x == UPPER_BOUND) {
-      return x;
-    }
   }
   /* nothing found :( */
+  space = start;
   free (space);
-  return 0;
+  return x;
 }
 
 int main(int argc, char *argv[]) {
