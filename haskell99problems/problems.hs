@@ -44,12 +44,15 @@ prop_reverse xs = reverse' xs == reverse xs
 -- it consumes the mapping from left and right comparing each. The
 -- special case is the middle letter, which we also result to True
 -- (e.g. otto == ottto)
-isPalindrome :: Ord a => [a] -> Bool
+isPalindrome :: Eq a => [a] -> Bool
 isPalindrome [] = True
 isPalindrome [x] = True
 isPalindrome (x:xs)
     | x == t = isPalindrome (init xs)
     | otherwise = False
         where t = last xs
+
+isPalindrome' :: Eq a => [a] -> Bool
+isPalindrome' xs = foldr (\(x,y) acc -> if x == y then acc else False) True (zip xs (reverse xs))
 
 main = $(quickCheckAll)
