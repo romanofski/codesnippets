@@ -55,4 +55,15 @@ isPalindrome (x:xs)
 isPalindrome' :: Eq a => [a] -> Bool
 isPalindrome' xs = foldr (\(x,y) acc -> if x == y then acc else False) True (zip xs (reverse xs))
 
+-- compress
+-- eliminates consecutive duplicates of list elements without using
+-- group
+compress :: Ord a => [a] -> [a]
+compress [] = []
+compress [x] = [x]
+compress (x:xs)
+    | x == (head xs) = compress xs
+    | otherwise = [x] ++ compress xs
+
+
 main = $(quickCheckAll)
