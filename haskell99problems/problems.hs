@@ -66,4 +66,9 @@ compress (x:xs)
     | otherwise = [x] ++ compress xs
 
 
+-- encode
+-- run-length encoding of a list
+encode :: Ord a => [a] -> [(Int, a)]
+encode xs = zip (map length $ group xs) (map head $ group xs)
+
 main = $(quickCheckAll)
