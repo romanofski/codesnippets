@@ -48,12 +48,12 @@ isPalindrome :: Eq a => [a] -> Bool
 isPalindrome [] = True
 isPalindrome [x] = True
 isPalindrome (x:xs)
-    | x == t = isPalindrome (init xs)
+    | x == t = isPalindrome $ init xs
     | otherwise = False
         where t = last xs
 
 isPalindrome' :: Eq a => [a] -> Bool
-isPalindrome' xs = foldr (\(x,y) acc -> if x == y then acc else False) True (zip xs (reverse xs))
+isPalindrome' xs = foldr (\(x,y) acc -> if x == y then acc else False) True (zip xs $ reverse xs)
 
 -- compress
 -- eliminates consecutive duplicates of list elements without using
