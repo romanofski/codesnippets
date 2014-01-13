@@ -1,6 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 import Test.QuickCheck
 import Test.QuickCheck.All
+import Data.List
 
 -- returns the last element from mapping
 myLast :: [a] -> a
