@@ -67,6 +67,18 @@ compress (x:xs)
     | otherwise = [x] ++ compress xs
 
 
+-- pack
+-- packs duplicates into sub lists
+pack :: Ord a => [a] -> [[a]]
+pack [] = []
+pack xs = [sub] ++ pack rest
+    where x = head xs
+          sub = takeWhile (== x) xs
+          rest = dropWhile (== x) xs
+
+prop_pack xs = pack xs == group xs
+
+
 -- encode
 -- run-length encoding of a list
 encode :: Ord a => [a] -> [(Int, a)]
