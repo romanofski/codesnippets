@@ -56,6 +56,21 @@ isPalindrome (x:xs)
 isPalindrome' :: Eq a => [a] -> Bool
 isPalindrome' xs = foldr (\(x,y) acc -> if x == y then acc else False) True (zip xs $ reverse xs)
 
+
+-- flatten
+-- flattens a nested list. We use a new type since the wiki page advises
+-- us: lists in Haskell are homogenous
+data NestedList a = Elem a | List [NestedList a] deriving Show
+flatten :: NestedList a -> [a]
+flatten (List []) = []
+flatten (Elem x) = [x]
+flatten (List (x:xs)) = flatten x ++ flatten (List xs)
+
+flattenf :: NestedList a -> [a]
+flattenf (Elem x) = [x]
+flattenf (List xs) = foldr (++) [] (map flattenf xs)
+
+
 -- compress
 -- eliminates consecutive duplicates of list elements without using
 -- group
