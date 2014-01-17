@@ -9,7 +9,10 @@ import Data.List
 --
 data Encoded a =  Single a | Multiple Int a deriving Show
 
-encode :: [a] -> [Encoded a]
+encode :: Eq a => [a] -> [Encoded a]
 encode [x] = [Single x]
+encode xs = foldl (\a b -> if length b == 1 then (Single (head b)):a else (Multiple (length b) (head b)):a) [] (group xs)
+-- TODO: wrong order
+-- yuck!
 
 main = $(quickCheckAll)
