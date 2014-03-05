@@ -8,11 +8,11 @@
   <xsl:output method="text" />
 
   <!-- extract code examples -->
-  <xsl:template match="text:p[@text:style-name='CodePACKT']">
-    <xsl:text>
-    </xsl:text>
-    <xsl:apply-templates select="text:s" />
-    <xsl:value-of select="." />
+  <xsl:template match="text:p[@text:style-name='CodePACKT'] | text:p[@text:style-name='CodeEndPACKT']">
+<xsl:text>
+</xsl:text>
+<xsl:apply-templates select="text:s" />
+<xsl:value-of select="." />
   </xsl:template>
 
   <!--

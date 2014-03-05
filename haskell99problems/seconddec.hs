@@ -29,4 +29,13 @@ encodeModified' = map encodeHelper . encodeSimple
     where encodeHelper (1, x) = Single x
           encodeHelper (n, x) = Multiple n x
 
+-- decodeModified
+-- decodes the run-length encoded list with encodeModified
+--
+decodeModified :: Ord a => [ListItem a] -> [a]
+decodeModified [Single x] = [x]
+decodeModified [Multiple n x] = concatMap (replicate n) [x]
+decodeModified (Single x:xs) = [x] ++ decodeModified xs
+decodeModified (Multiple n x:xs) = concatMap (replicate n) [x] ++ decodeModified xs
+
 main = $(quickCheckAll)
