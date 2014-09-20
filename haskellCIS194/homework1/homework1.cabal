@@ -18,3 +18,4 @@ executable homework1
   main-is:           src/Main.hs
   -- other-modules:       
   build-depends:       base ==4.6.*
+                     , doctest
