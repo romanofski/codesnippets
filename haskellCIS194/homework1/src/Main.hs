@@ -1,6 +1,3 @@
-import Data.Char
-
-
 main :: IO ()
 main = print $ show $ dropLastDigit 12345
 
