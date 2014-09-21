@@ -14,7 +14,7 @@ main = print $ show $ dropLastDigit 12345
 -- 4
 lastDigit :: Integer -> Integer
 lastDigit x =  abs (r - x)
-    where r = (round (toRational (x) * 0.1)) * 10
+    where r = round (toRational x * 0.1) * 10
 
 
 -- |
@@ -27,5 +27,16 @@ lastDigit x =  abs (r - x)
 dropLastDigit :: Integer -> Integer
 dropLastDigit x
     | x < 10     = 0
-    | otherwise  = floor $ y
-    where y = toRational (x) * 0.1
+    | otherwise  = floor y
+    where y = toRational x * 0.1
+
+
+-- Converts a number into a list of digits
+-- |
+-- >>> toDigits 1234
+-- [1,2,3,4]
+-- >>> toDigits 0
+-- []
+-- >>> toDigits (-17)
+-- []
+toDigits
