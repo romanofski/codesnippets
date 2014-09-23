@@ -13,8 +13,7 @@ main = print $ show $ dropLastDigit 12345
 -- >>> lastDigit 53234
 -- 4
 lastDigit :: Integer -> Integer
-lastDigit x =  abs (r - x)
-    where r = round (toRational x * 0.1) * 10
+lastDigit x =  x `mod` 10
 
 
 -- |
@@ -25,10 +24,7 @@ lastDigit x =  abs (r - x)
 -- >>> dropLastDigit 1235
 -- 123
 dropLastDigit :: Integer -> Integer
-dropLastDigit x
-    | x < 10     = 0
-    | otherwise  = floor y
-    where y = toRational x * 0.1
+dropLastDigit x = x `div` 10
 
 
 -- Converts a number into a list of digits
