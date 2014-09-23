@@ -35,4 +35,9 @@ dropLastDigit x = x `div` 10
 -- []
 -- >>> toDigits (-17)
 -- []
-toDigits
+toDigits :: Integer -> [Integer]
+toDigits x
+    | x <= 0 = []
+    | otherwise = t ++ [l] where
+              l = lastDigit x
+              t = toDigits $ dropLastDigit x
