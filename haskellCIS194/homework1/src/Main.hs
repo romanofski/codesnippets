@@ -41,3 +41,21 @@ toDigits x
     | otherwise = t ++ [l] where
               l = lastDigit x
               t = toDigits $ dropLastDigit x
+
+
+-- Double every second digit from the right
+-- |
+-- >>> doubleEveryOther [8,7,6,5]
+-- [16,7,12,5]
+-- >>> doubleEveryOther [1,2,3]
+-- [1,4,3]
+-- >>> doubleEveryOther [1]
+-- [1]
+doubleEveryOther :: [Integer] -> [Integer]
+doubleEveryOther xs = reverse $ doubleEveryOther' $ reverse xs
+
+
+doubleEveryOther' :: [Integer] -> [Integer]
+doubleEveryOther' [] = []
+doubleEveryOther' [x] = [x]
+doubleEveryOther' (x:(y:zs)) = x : (y * 2) : doubleEveryOther' zs
