@@ -1,3 +1,5 @@
+module Main where
+
 main :: IO ()
 main = print $ show $ dropLastDigit 12345
 
@@ -59,3 +61,25 @@ doubleEveryOther' :: [Integer] -> [Integer]
 doubleEveryOther' [] = []
 doubleEveryOther' [x] = [x]
 doubleEveryOther' (x:(y:zs)) = x : (y * 2) : doubleEveryOther' zs
+
+
+-- cross sum all digits
+-- |
+-- >>> sumDigits [16,7,12,5]
+-- 22
+-- >>> sumDigits [1,2,3,14]
+-- 11
+sumDigits :: [Integer] -> Integer
+sumDigits [x] = if x <= 10 then x else 1 + (x `mod` 10)
+sumDigits (x:xs) = y + sumDigits xs
+    where y = if x <= 10 then x else 1 + (x `mod` 10)
+
+
+-- validates if a number is a valid credit card number
+-- |
+-- >>> validate 4012888888881881
+-- True
+-- >>> validate 4012888888881882
+-- False
+validate :: Integer -> Bool
+validate x = sumDigits (doubleEveryOther $ toDigits x) `mod` 10 == 0
