@@ -69,10 +69,11 @@ doubleEveryOther' (x:(y:zs)) = x : (y * 2) : doubleEveryOther' zs
 -- 22
 -- >>> sumDigits [1,2,3,14]
 -- 11
+-- >>> sumDigits []
+-- 0
 sumDigits :: [Integer] -> Integer
-sumDigits [x] = if x <= 10 then x else 1 + (x `mod` 10)
-sumDigits (x:xs) = y + sumDigits xs
-    where y = if x <= 10 then x else 1 + (x `mod` 10)
+sumDigits [] = 0
+sumDigits (x:xs) = sum (toDigits x) + sumDigits xs
 
 
 -- validates if a number is a valid credit card number
