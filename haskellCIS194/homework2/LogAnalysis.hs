@@ -29,10 +29,22 @@ toTimeStamp xs = case xs of
 
 -- |
 -- >>> toLogMessage ["I", "29", "la"]
--- ValidLM (LogMessage Info 29 "I 29 la")
+-- ValidLM (LogMessage Info 29 "la")
+-- >>> toLogMessage ["E", "2", "29", "help"]
+-- ValidLM (LogMessage (Error 2) 29 "help")
 -- >>> toLogMessage ["Foo", "bar", "baz"]
--- InvalidLM String
+-- InvalidLM "Foo bar baz"
 toLogMessage :: [String] -> MaybeLogMessage
-toLogMessage p@("I":_) = ValidLM (LogMessage (toError p) (toTimeStamp p) (unwords p))
--- parseMessage :: String -> MaybeLogMessage
--- parseMessage s = Control.Exception.catch (ValidLM (LogMessage (toError s) (toTimeStamp s) s)) (\err -> InvalidLM err)
+toLogMessage p@("I":_) = ValidLM (LogMessage (toError p) (toTimeStamp p) (unwords $ drop 2 p))
+toLogMessage p@("E":_) = ValidLM (LogMessage (toError p) (toTimeStamp p) (unwords $ drop 3 p))
+toLogMessage p = InvalidLM (unwords p)
+
+-- |
+-- >>> parseMessage "E 2 562 help help"
+-- ValidLM (LogMessage (Error 2) 562 "help help")
+-- >>> parseMessage "I 29 la la la"
+-- ValidLM (LogMessage Info 29 "la la la")
+-- >>> parseMessage "Not the right format"
+-- InvalidLM "Not the right format"
+parseMessage :: String -> MaybeLogMessage
+parseMessage s = toLogMessage (words s)
