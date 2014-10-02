@@ -2,6 +2,8 @@
 module LogAnalysis where
 
 import Log
+import qualified Data.Char
+import qualified Data.List
 
 -- | Helper function for Exercise 1
 -- >>> toLogMessage ["I", "29", "la"]
@@ -47,3 +49,57 @@ validMessagesOnly (_:xs) = validMessagesOnly xs
 -- | Exercise 3
 parse :: String -> [LogMessage]
 parse x = validMessagesOnly $ map parseMessage (lines x)
+
+-- | Exercise 4
+-- >>> compareMsgs (LogMessage Warning 153 "Foo") (LogMessage Info 208 "baz")
+-- LT
+-- >>> compareMsgs (LogMessage (Error 101) 22 "My God") (LogMessage Info 22 "My God")
+-- EQ
+compareMsgs :: LogMessage -> LogMessage -> Ordering
+compareMsgs (LogMessage _ x _) (LogMessage _ y _)
+    | x < y = LT
+    | x > y = GT
+    | otherwise = EQ
+
+
+-- | Exercise 5
+sortMessages :: [LogMessage] -> [LogMessage]
+sortMessages = Data.List.sortBy compareMsgs
+
+-- | Helper
+-- >>> isImportantMsg (LogMessage (Error 101) 22 "My God")
+-- True
+-- >>> isImportantMsg (LogMessage Info 22 "My God")
+-- False
+isImportantMsg :: LogMessage -> Bool
+isImportantMsg (LogMessage (Error x) _ _)
+    | x >= 50 = True
+    | otherwise = False
+isImportantMsg LogMessage{} = False
+
+
+logMessageString :: LogMessage -> String
+logMessageString (LogMessage _ _ x) = x
+
+-- | Exercise 6
+-- >>> whatWentWrong [(LogMessage (Error 1) 51 "Foo"),(LogMessage (Error 208) 51 "baz")]
+-- ["baz"]
+whatWentWrong :: [LogMessage] -> [String]
+whatWentWrong xs = map logMessageString (filter isImportantMsg xs)
+
+
+isInfixOfMessage :: String -> LogMessage -> Bool
+isInfixOfMessage x (LogMessage _ _ y) = l `Data.List.isInfixOf` m
+    where l = map Data.Char.toLower x
+          m = map Data.Char.toLower y
+
+-- | Exercise 7
+-- >>> let xs = [(LogMessage (Error 102) 51 "Foo init"),(LogMessage (Error 208) 51 "baz")]
+-- >>> messagesAbout "Init" xs
+-- [LogMessage (Error 102) 51 "Foo init"]
+messagesAbout :: String -> [LogMessage] -> [LogMessage]
+messagesAbout s = filter (isInfixOfMessage s)
+
+-- | Exercise 8
+whatWentWrongEnhanced :: String -> [LogMessage] -> [String]
+whatWentWrongEnhanced s xs = map logMessageString $ messagesAbout s (filter isImportantMsg xs)
