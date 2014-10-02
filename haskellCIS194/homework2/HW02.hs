@@ -28,12 +28,14 @@ type STemplate = Template
 -- | Exercise 1
 -- >>> formableBy "fun" ['x','n','i','f','u','e','l']
 -- True
+-- >>> formableBy "haskell" ['k','l','e','h','a','l','s']
+-- True
 -- >>> formableBy "haskell" ['k','l','e','h','a','y','s']
 -- False
 formableBy :: String -> Hand -> Bool
 formableBy [] _ = True
 formableBy xs y
-    | x `elem` y = formableBy t y
+    | x `elem` y = formableBy t (delete x y)
     | otherwise = False
     where x = head xs
           t = tail xs
