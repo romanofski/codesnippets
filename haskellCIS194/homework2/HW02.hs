@@ -32,13 +32,27 @@ type STemplate = Template
 -- True
 -- >>> formableBy "haskell" ['k','l','e','h','a','y','s']
 -- False
+-- >>> formableBy "" ['a','f']
+-- True
 formableBy :: String -> Hand -> Bool
-formableBy [] _ = True
-formableBy xs y
-    | x `elem` y = formableBy t (delete x y)
-    | otherwise = False
-    where x = head xs
-          t = tail xs
+formableBy xs ys = null (xs \\ ys)
 
+-- | Exercise 2
+-- >>> wordsFrom ['a','b','c','d']
+--["ab","ad","ba","bad","cab","cad","dab"]
 wordsFrom :: Hand -> [String]
 wordsFrom hand = filter (`formableBy` hand) allWords
+
+
+-- | Exercise 3
+-- See if we can form the word given by string and template with the
+-- given letters.
+-- >>> wordFitsTemplate "let" ['x','x'] "let"
+-- True
+-- >>> wordFitsTemplate "??r?" ['c','x','e','a','b','c','l'] "care"
+-- True
+-- >>> wordFitsTemplate "??r?" ['c','x','e','w','b','c','l'] "care"
+-- False
+wordFitsTemplate :: Template -> Hand -> String -> Bool
+wordFitsTemplate t h s = formableBy ns h
+    where ns = s \\ t
