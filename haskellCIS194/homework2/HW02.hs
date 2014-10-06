@@ -56,3 +56,13 @@ wordsFrom hand = filter (`formableBy` hand) allWords
 wordFitsTemplate :: Template -> Hand -> String -> Bool
 wordFitsTemplate t h s = formableBy ns h
     where ns = s \\ t
+
+
+-- | Exercise 4
+-- Calculate scrabble value by word
+-- scrabbleValueWord "care"
+-- 6
+-- scrabbleValueWord "quiz"
+-- 22
+scrabbleValueWord :: String -> Int
+scrabbleValueWord xs = sum $ map scrabbleValue xs
