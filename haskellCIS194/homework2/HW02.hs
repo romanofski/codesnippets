@@ -66,3 +66,20 @@ wordFitsTemplate t h s = formableBy ns h
 -- 22
 scrabbleValueWord :: String -> Int
 scrabbleValueWord xs = sum $ map scrabbleValue xs
+
+
+filterByValue :: [(Int, String)] -> Int -> [String]
+filterByValue ((x,s):xs) y
+    | x == y = [s] ++ filterByValue xs
+
+-- | Exercise 5
+-- filter words with max point value
+-- bestWords ["cat", "rat", "bat"]
+-- ["bat","cat"]
+-- bestWords []
+-- []
+bestWords :: [String] -> [String]
+bestWords xs = filterByValue new m
+    where val = map scrabbleValueWord xs
+          new = zip val xs
+          m = maximum val
