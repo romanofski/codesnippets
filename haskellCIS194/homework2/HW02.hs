@@ -68,9 +68,13 @@ scrabbleValueWord :: String -> Int
 scrabbleValueWord xs = sum $ map scrabbleValue xs
 
 
+-- | Returns every string which tuple value is equal to given number
+-- >>> filterByValue [(3,"1"), (5,"2")] 3
+-- ["1"]
 filterByValue :: [(Int, String)] -> Int -> [String]
 filterByValue ((x,s):xs) y
-    | x == y = [s] ++ filterByValue xs
+    | x == y = s : filterByValue xs y
+    | otherwise = []
 
 -- | Exercise 5
 -- filter words with max point value
