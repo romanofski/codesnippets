@@ -87,3 +87,28 @@ bestWords xs = filterByValue new m
     where val = map scrabbleValueWord xs
           new = zip val xs
           m = maximum val
+
+
+extraValueLetter :: String -> String -> Int
+extraValueLetter [] _ = 0
+extraValueLetter ('D':s) (x:xs) = 2 + scrabbleValue x + extraValueLetter s xs
+extraValueLetter ('T':s) (x:xs) = 3 + scrabbleValue x + extraValueLetter s xs
+extraValueLetter (_:s) (_:xs) = 0 + extraValueLetter s xs
+
+extraValueWord :: String -> Int
+extraValueWord [] = 0
+extraValueWord ('2':s) = 2 + extraValueWord s
+extraValueWord ('3':s) = 3 + extraValueWord s
+extraValueWord (_:s) = 0 + extraValueWord s
+
+-- | Exercise 6
+-- Computers the value of a word given by a template with additional
+-- values indicated by numbers.
+-- >>> scrabbleValueTemplate "?e??3" "peace"
+-- 27
+-- >>> scrabbleValueTemplate "De?2?" "peace"
+-- 24
+-- >>> scrabbleValueTemplate "??Tce" "peace"
+-- 11
+scrabbleValueTemplate :: STemplate -> String -> Int
+scrabbleValueTemplate t s = (scrabbleValueWord s + extraValueLetter t s) * extraValueWord t
