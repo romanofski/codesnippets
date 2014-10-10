@@ -54,13 +54,13 @@ dropTrailingWhitespace = dropWhileEnd isSpace
 
 
 -- | Exercise 16: First letter of strings
--- >>> firstLetters ["foo", "bar"]
--- [’f’,’b’]
--- >>> firstLetters ["alpha",""]
--- [’a’]
--- >>> firstLetters []
--- []
--- >>> firstLetters ["",""]
--- []
+-- >>> firstLetters ["foo", "bar"] == ['f', 'b']
+-- True
+-- >>> firstLetters ["alpha",""] == ['a']
+-- True
+-- >>> firstLetters [] == []
+-- True
+-- >>> firstLetters ["",""] == []
+-- True
 firstLetters :: [String] -> [Char]
-firstLetters xs = catMaybes $ map listToMaybe $ dropWhileEnd null xs
+firstLetters xs = map head $ dropWhileEnd null xs
