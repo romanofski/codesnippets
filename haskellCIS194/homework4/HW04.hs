@@ -36,4 +36,4 @@ safeHead (x:_)  = Just x
 -- >>> allCaps ["Hi", "there"]
 -- False
 allCaps :: [String] -> Bool
-allCaps xs = all (maybe False isUpper) (map listToMaybe xs)
+allCaps = all (maybe False isUpper . listToMaybe)
