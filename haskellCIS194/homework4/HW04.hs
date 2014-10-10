@@ -51,3 +51,16 @@ allCaps = all (maybe False isUpper . listToMaybe)
 -- "foo    bar"
 dropTrailingWhitespace :: String -> String
 dropTrailingWhitespace = dropWhileEnd isSpace
+
+
+-- | Exercise 16: First letter of strings
+-- >>> firstLetters ["foo", "bar"]
+-- [’f’,’b’]
+-- >>> firstLetters ["alpha",""]
+-- [’a’]
+-- >>> firstLetters []
+-- []
+-- >>> firstLetters ["",""]
+-- []
+firstLetters :: [String] -> [Char]
+firstLetters xs = catMaybes $ map listToMaybe $ dropWhileEnd null xs
