@@ -21,10 +21,6 @@ insertBST cmp n (Node left x right) = case cmp n x of
     GT -> Node left x (insertBST cmp n right)
 
 
-safeHead :: [a] -> Maybe a
-safeHead []     = Nothing
-safeHead (x:_)  = Just x
-
 -- | Exercise 14: check if the list of strings only contain capitalized
 -- words
 -- >>> allCaps ["Hi", "There"]
