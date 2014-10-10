@@ -3,6 +3,7 @@ module HW04 where
 import BST
 import Data.Char
 import Data.Maybe
+import Data.List
 
 -- | Exercise 13: insert into a BST
 -- >>> insertBST compare 1 Leaf
@@ -33,3 +34,20 @@ insertBST cmp n (Node left x right) = case cmp n x of
 -- False
 allCaps :: [String] -> Bool
 allCaps = all (maybe False isUpper . listToMaybe)
+
+
+-- | Exercise 15: Drop trailing wp from a string
+-- >>> dropTrailingWhitespace "foo"
+-- "foo"
+-- >>> dropTrailingWhitespace ""
+-- ""
+-- >>> dropTrailingWhitespace "bar   "
+-- "bar"
+-- >>> dropTrailingWhitespace "foo bar   "
+-- "foo bar"
+-- >>> dropTrailingWhitespace "foo      bar"
+-- "foo      bar"
+-- >>> dropTrailingWhitespace "foo    bar    "
+-- "foo    bar"
+dropTrailingWhitespace :: String -> String
+dropTrailingWhitespace = dropWhileEnd isSpace
