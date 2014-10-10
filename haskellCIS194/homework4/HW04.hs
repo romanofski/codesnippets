@@ -1,7 +1,8 @@
 module HW04 where
 
 import BST
-
+import Data.Char
+import Data.Maybe
 
 -- | Exercise 13: insert into a BST
 -- >>> insertBST compare 1 Leaf
@@ -18,3 +19,21 @@ insertBST cmp n (Node left x right) = case cmp n x of
     LT -> Node (insertBST cmp n left) x right
     EQ -> Node left x right
     GT -> Node left x (insertBST cmp n right)
+
+
+safeHead :: [a] -> Maybe a
+safeHead []     = Nothing
+safeHead (x:_)  = Just x
+
+-- | Exercise 14: check if the list of strings only contain capitalized
+-- words
+-- >>> allCaps ["Hi", "There"]
+-- True
+-- >>> allCaps []
+-- True
+-- >>> allCaps ["", "Bla"]
+-- False
+-- >>> allCaps ["Hi", "there"]
+-- False
+allCaps :: [String] -> Bool
+allCaps xs = all (maybe False isUpper) (map listToMaybe xs)
