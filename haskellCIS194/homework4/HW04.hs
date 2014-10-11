@@ -64,3 +64,15 @@ dropTrailingWhitespace = dropWhileEnd isSpace
 -- True
 firstLetters :: [String] -> [Char]
 firstLetters xs = map head $ dropWhileEnd null xs
+
+
+-- | Exercise: 17: Render proper bracketed list
+-- >>> asList ["alpha", "beta", "gamma"]
+-- "[alpha,beta,gamma]"
+-- >>> asList []
+-- "[]"
+-- >>> asList ["lonely"]
+-- "[lonely]"
+asList :: [String] -> String
+asList xs = "[" ++ joined ++ "]"
+    where joined = intercalate "," xs
