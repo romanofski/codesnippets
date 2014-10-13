@@ -54,7 +54,7 @@ dropTrailingWhitespace = dropWhileEnd isSpace
 
 
 -- | Exercise 16: First letter of strings
--- >>> firstLetters ["foo", "bar"] == ['f', 'b']
+-- >>> firstLetters ["foo", "", "bar"] == ['f', 'b']
 -- True
 -- >>> firstLetters ["alpha",""] == ['a']
 -- True
@@ -63,7 +63,7 @@ dropTrailingWhitespace = dropWhileEnd isSpace
 -- >>> firstLetters ["",""] == []
 -- True
 firstLetters :: [String] -> [Char]
-firstLetters xs = map head $ dropWhileEnd null xs
+firstLetters = mapMaybe listToMaybe
 
 
 -- | Exercise: 17: Render proper bracketed list
