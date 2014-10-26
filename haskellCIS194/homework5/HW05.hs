@@ -2,6 +2,7 @@ module HW05 where
 
 import Ring
 import Parser
+import Data.Maybe
 
 
 -- | Exercise 1
@@ -23,3 +24,11 @@ instance Ring Mod5 where
 
     add (MkMod x) (MkMod y) = MkMod ((x + y) `mod` 5)
     mul (MkMod x) (MkMod y) = MkMod ((x * y) `mod` 5)
+
+
+instance Parsable Mod5 where
+    parse str = listToMaybe . reads
+
+
+mod5ParsingWorks :: Bool
+mod5ParsingWorks = (parse "10" == Just (0 :: Mod5, ""))
