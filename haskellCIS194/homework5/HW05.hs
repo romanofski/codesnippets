@@ -27,8 +27,12 @@ instance Ring Mod5 where
 
 
 instance Parsable Mod5 where
-    parse str = listToMaybe . reads
+    parse str = fmap (\(n,s) -> (MkMod n,s)) (listToMaybe $ reads str)
 
 
+-- | Exercise 2
+-- >>> mod5ParsingWorks
+-- True
 mod5ParsingWorks :: Bool
-mod5ParsingWorks = (parse "10" == Just (0 :: Mod5, ""))
+mod5ParsingWorks = (parse "10" == Just (MkMod 10, "")) &&
+                   (parseRing "1 + 2 * 3" == Just (MkMod 2))
