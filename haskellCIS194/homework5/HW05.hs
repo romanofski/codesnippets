@@ -3,6 +3,7 @@ module HW05 where
 import Ring
 import Parser
 import Data.Maybe
+import Data.Char
 
 
 -- | Exercise 1
@@ -36,3 +37,22 @@ instance Parsable Mod5 where
 mod5ParsingWorks :: Bool
 mod5ParsingWorks = (parse "10" == Just (MkMod 10, "")) &&
                    (parseRing "1 + 2 * 3" == Just (MkMod 2))
+
+
+-- | Exercise 3
+data Mat2x2 = Mat2x2 Integer Integer Integer Integer
+    deriving (Show)
+
+instance Ring Mat2x2 where
+    addId = Mat2x2 0 0 0 0
+    addInv (Mat2x2 a b c d) = Mat2x2 (negate a) (negate b) (negate c) (negate d)
+    mulId = Mat2x2 1 0 1 0
+
+    add (Mat2x2 a b c d) (Mat2x2 w x y z) = Mat2x2 (a + w) (b + x) (c + y) (d + z)
+    mul (Mat2x2 a b c d) (Mat2x2 w x y z) = Mat2x2 (a * w + b * y) (a * x + b * z) (c * w + d * x) (c * x + d * z)
+
+instance Parsable Mat2x2 where
+    parse str = listToMatrix
+        where
+        listToMatrix ["[[", n, ",", m, "][", p, ",", q, "]]"] = Just $ Mat2x2(read n :: Integer) (read m :: Integer) (read p :: Integer) (read q :: Integer)
+        listToMatrix _ = Nothing
