@@ -25,3 +25,12 @@ import qualified Data.Text.IO               as T
 ynToBool :: Value -> Value
 ynToBool (String "Y") = Bool True
 ynToBool _            = Bool False
+
+
+-- | Exercise 2 - returns either an error or a Value
+-- >>> parseData (B.pack "")
+-- "Nothing"
+parseData :: B.ByteString -> Either String Value
+parseData xs = case B.null xs of
+                False -> Right $ fmap (ynToBool . String) xs
+                True -> Left "Nothing"
