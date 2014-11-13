@@ -29,8 +29,6 @@ ynToBool _            = Bool False
 
 -- | Exercise 2 - returns either an error or a Value
 -- >>> parseData (B.pack "")
--- "Nothing"
+-- Left "not enough input"
 parseData :: B.ByteString -> Either String Value
-parseData xs = case B.null xs of
-                False -> Right $ fmap (ynToBool . String) xs
-                True -> Left "Nothing"
+parseData xs = eitherDecode xs
