@@ -38,4 +38,17 @@ ynToBool (Object o) = Object (fmap (ynToBool) o)
 -- >>> parseData (B.pack "{\"credit\":\"Y\"}")
 -- Right (Bool False)
 parseData :: B.ByteString -> Either String Value
-parseData xs = fmap ynToBool $ eitherDecode xs
+parseData xs = eitherDecode xs
+
+-- | Exercise 3 - market type
+--
+data Market = Market { marketname :: T.Text
+                     , x          :: Int
+                     , y          :: Int
+                     , state      :: String }
+  deriving (Show, Generic)
+instance FromJSON Market
+
+
+parseMarkets :: B.ByteString -> Either String [Market]
+parseMarkets xs = eitherDecode xs
