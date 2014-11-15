@@ -35,14 +35,17 @@ ynToBool :: Value -> Value
 ynToBool (String "Y") = Bool True
 ynToBool (String "N") = Bool False
 ynToBool (String x) = String x
-ynToBool (Object o) = Object (fmap (ynToBool) o)
+ynToBool (Object x) = Object (fmap (ynToBool) x)
+ynToBool (Array x) = Array (fmap ynToBool x)
+ynToBool (Number x) = Number x
+ynToBool _ = Bool False
 
 
 -- | Exercise 2 - returns either an error or a Value
 -- >>> parseData (B.pack "")
 -- Left "not enough input"
 -- >>> parseData (B.pack "{\"credit\":\"Y\"}")
--- Right (Bool False)
+-- Right (Object (fromList [("credit",Bool False)]))
 parseData :: B.ByteString -> Either String Value
 parseData xs = eitherDecode xs
 
