@@ -45,9 +45,9 @@ ynToBool _ = Bool False
 -- >>> parseData (B.pack "")
 -- Left "not enough input"
 -- >>> parseData (B.pack "{\"credit\":\"Y\"}")
--- Right (Object (fromList [("credit",Bool False)]))
+-- Right (Object (fromList [("credit",Bool True)]))
 parseData :: B.ByteString -> Either String Value
-parseData xs = eitherDecode xs
+parseData xs = fmap ynToBool $ eitherDecode xs
 
 -- | Exercise 3 - market type
 --
