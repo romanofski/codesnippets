@@ -17,11 +17,17 @@ import qualified Data.Text.IO               as T
 -- >>> :set -XDeriveGeneric
 -- >>> import Data.HashMap.Strict
 
+toValue :: Maybe Value -> Value
+toValue (Just a) = a
+toValue (Nothing) = Null
+
 -- | Exercise 1 - convert "Y" to Bool
 -- >>> ynToBool (String "Y")
 -- Bool True
--- >>> ynToBool (Object (fromList [("country",String "Alameda"), ("credits",String "Y")]))
+-- >>> ynToBool $ toValue $ (decode "{\"country\" : \"Alameda\", \"credits\" : \"Y\" }" :: Maybe Value)
 -- Object (fromList [("country",String "Alameda"),("credits",Bool True)])
+-- >>> ynToBool $ toValue $ (decode (encode [1,3,4]) :: Maybe Value)
+-- Array (fromList [Number 1.0,Number 3.0,Number 4.0])
 -- >>> ynToBool (String "N")
 -- Bool False
 --
