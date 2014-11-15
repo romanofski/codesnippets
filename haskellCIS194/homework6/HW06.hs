@@ -56,8 +56,20 @@ data Market = Market { marketname :: T.Text
                      , y          :: Int
                      , state      :: String }
   deriving (Show, Generic)
+
 instance FromJSON Market
 
 
+-- | Exercise 3 - parse JSON to Market data types
+-- >>> :{
+-- let data = "[{\"marketname\":\"Wednesday\",
+--           \"x\":-76.135361,
+--           \"y\":36.841885,
+--           \"herbs\":\"N\",
+--           \"wine\":\"Y\",
+--           \"state\":\"NY\"}]"
+-- :}
+-- >>> parseMarkets $ B.pack data
+-- Nothing
 parseMarkets :: B.ByteString -> Either String [Market]
 parseMarkets xs = eitherDecode xs
