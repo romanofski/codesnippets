@@ -66,3 +66,11 @@ instance FromJSON Market
 parseMarkets :: B.ByteString -> Either String (Result Market)
 parseMarkets xs = fmap (\a -> fromJSON a :: Result Market) decoded
     where decoded = parseData xs
+
+
+-- | Exercise 4 - loads market data
+--
+loadData :: IO [Market]
+loadData = case parseMarkets B.readFile "markets.json" of
+    Left err -> fail err
+    Right xs -> xs
