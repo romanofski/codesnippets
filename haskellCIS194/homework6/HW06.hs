@@ -64,8 +64,9 @@ parseMarkets = eitherDecode
 
 
 -- | Exercise 4 - loads market data
---
 loadData :: IO [Market]
-loadData = case parseMarkets B.readFile "markets.json" of
-    Left err -> fail err
-    Right xs -> xs
+loadData = do
+    filedata <- B.readFile "markets.json"
+    case parseMarkets filedata of
+        Left err -> fail err
+        Right xs -> return $ xs
