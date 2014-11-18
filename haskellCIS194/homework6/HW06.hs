@@ -51,7 +51,7 @@ parseData xs = fmap ynToBool $ eitherDecode xs
 data Market = Market { marketname :: T.Text
                      , x          :: Int
                      , y          :: Int
-                     , wine       :: Value
+                     , wine       :: Bool
                      , state      :: String }
   deriving (Show, Generic)
 
@@ -59,11 +59,8 @@ instance FromJSON Market
 
 
 -- | Exercise 3 - parse JSON to Market data types
--- >>> parseMarkets $ B.pack "{\"marketname\":\"Wednesday\", \"x\":-76.135361, \"y\":36.841885, \"herbs\":\"N\", \"wine\":\"Y\",\"state\":\"NY\"}"
--- Right [Market {marketname = "Wednesday", x = -77, y = 36, state = "NY", wine = Bool True}]
-parseMarkets :: B.ByteString -> Either String (Result Market)
-parseMarkets xs = fmap (\a -> fromJSON a :: Result Market) decoded
-    where decoded = parseData xs
+parseMarkets :: B.ByteString -> Either String [Market]
+parseMarkets = eitherDecode
 
 
 -- | Exercise 4 - loads market data
