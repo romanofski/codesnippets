@@ -34,11 +34,9 @@ toValue (Nothing) = Null
 ynToBool :: Value -> Value
 ynToBool (String "Y") = Bool True
 ynToBool (String "N") = Bool False
-ynToBool (String x) = String x
 ynToBool (Object x) = Object (fmap (ynToBool) x)
 ynToBool (Array x) = Array (fmap ynToBool x)
-ynToBool (Number x) = Number x
-ynToBool _ = Bool False
+ynToBool x = x
 
 
 -- | Exercise 2 - returns either an error or a Value
