@@ -6,6 +6,7 @@ module HW06 where
 import Data.Aeson
 import Data.Monoid
 import GHC.Generics
+import Data.List
 
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.Text                  as T
@@ -70,3 +71,23 @@ loadData = do
     case parseMarkets filedata of
         Left err -> fail err
         Right xs -> return $ xs
+
+
+-- | Exercise 5
+-- >>> combined
+-- OrdList {getOrdList = [1,2,3,4,5,6]}
+data OrdList a = OrdList { getOrdList :: [a] }
+    deriving (Eq, Show)
+
+instance Ord a => Monoid (OrdList a) where
+    mempty  = OrdList ([])
+    mappend (OrdList xs) (OrdList ys) = OrdList $ sort $ xs <> ys
+
+evens :: OrdList Integer
+evens = OrdList [2,4,6]
+
+odds :: OrdList Integer
+odds = OrdList [1,3,5]
+
+combined :: OrdList Integer
+combined = evens <> odds
