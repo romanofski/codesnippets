@@ -91,3 +91,12 @@ odds = OrdList [1,3,5]
 
 combined :: OrdList Integer
 combined = evens <> odds
+
+
+-- | Exercise 6
+-- >>> let markets = [Market { marketname="foo", x=1, y=1, wine=True, state="QLD" }]
+-- >>> search markets
+type Searcher m = T.Text -> [Market] -> m
+
+search :: Monoid m => (Market -> m) -> Searcher m
+search mk_m = go
