@@ -2,6 +2,7 @@ module HW08 where
 
 import Data.Maybe
 import Text.Read
+import Data.List
 
 
 -- | Exercise 1: detect wether a string as a certain format and return
@@ -12,8 +13,17 @@ import Text.Read
 -- False
 stringFitsFormat :: String -> Bool
 stringFitsFormat = isJust . go
-    where go :: String -> Maybe String
-          go x:xs =
-            case (readMaybe x :: Int ) of
-                Just y:xs -> stripPrefix (replicate x y) xs
-                _ -> Nothing
+
+
+-- |
+-- >>> go "3aaa"
+-- Just ""
+-- >>> go "100"
+-- Nothing
+go :: String -> Maybe String
+go [] = Just ""
+go (x:[]) = Nothing
+go (x:y:xs) = do
+    n <- readMaybe [x] :: Maybe Int
+    rest <- stripPrefix (replicate n y) (y : xs)
+    go rest
