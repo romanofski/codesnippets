@@ -11,6 +11,14 @@ import Data.List
 -- True
 -- >>> stringFitsFormat "100a"
 -- False
+-- >>> stringFitsFormat "001a"
+-- True
+-- >>> stringFitsFormat "2bb2bb"
+-- False
+-- >>> stringFitsFormat "0"
+-- True
+-- >>> stringFitsFormat "1"
+-- False
 stringFitsFormat :: String -> Bool
 stringFitsFormat = isJust . go
 
@@ -20,10 +28,13 @@ stringFitsFormat = isJust . go
 -- Just ""
 -- >>> go "100"
 -- Nothing
+-- >>> go "0"
+-- Just ""
 go :: String -> Maybe String
+go "0" = Just ""
 go [] = Just ""
-go (x:[]) = Nothing
-go (x:y:xs) = do
+go [_] = Nothing
+go (x:xs) = do
     n <- readMaybe [x] :: Maybe Int
-    rest <- stripPrefix (replicate n y) (y : xs)
+    rest <- stripPrefix (replicate n 'a') xs
     go rest
