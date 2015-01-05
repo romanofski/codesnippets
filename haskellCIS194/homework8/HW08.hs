@@ -38,3 +38,9 @@ go (x:xs) = do
     n <- readMaybe [x] :: Maybe Int
     rest <- stripPrefix (replicate n 'a') xs
     go rest
+
+-- | Exercise 2
+-- list of all numbers between 1 and 100 that are divisible by 5 and 7
+-- Note: the 35 and 70 is a bit of a cheat I agree
+specialNumbers :: [Int]
+specialNumbers = [ n | n <- [1..100], n `mod` 5 == 0 && n /= 35 && n /= 70]
