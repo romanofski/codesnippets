@@ -3,7 +3,8 @@ module HW08 where
 import Data.Maybe
 import Text.Read
 import Data.List
-
+import Data.Monoid
+import Control.Monad.Random
 
 -- | Exercise 1: detect wether a string as a certain format and return
 -- true
@@ -44,3 +45,32 @@ go (x:xs) = do
 -- Note: the 35 and 70 is a bit of a cheat I agree
 specialNumbers :: [Int]
 specialNumbers = [ n | n <- [1..100], n `mod` 5 == 0 && n /= 35 && n /= 70]
+
+
+-- | Risk
+--
+type StdRand = Rand StdGen
+type Army = Int
+data ArmyCounts = ArmyCounts { attackers :: Army, defenders :: Army }
+    deriving Show
+
+type DieRoll = Int
+
+
+-- | Exercise 3
+-- simulates rolling a fair, 6-sided die
+dieRoll :: StdRand DieRoll
+dieRoll = getRandomR (1,6)
+
+-- | Exercise 4
+-- computes the change in the number of armies resulting from the rolls
+-- >>> battleResults [3,6,4] [5,5]
+-- ArmyCounts {attackers = -1, defenders = -1}
+--
+instance Monoid ArmyCounts where
+    mempty                                    = ArmyCounts { attackers = 0, defenders = 0 }
+    mappend (x:xs) (y:ys) = ArmyCounts { attackers = x-y, defenders = x-y } + mappend xs ys
+
+
+battleResults :: [DieRoll] -> [DieRoll] -> ArmyCounts
+battleResults xs ys = ArmyCounts { attackers = -1, defenders = -1 }
