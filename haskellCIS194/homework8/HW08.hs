@@ -64,27 +64,33 @@ dieRoll = getRandomR (1,6)
 
 -- | Exercise 4
 -- Monoid instance for ArmyCounts to make our life easier.
--- >>> let a = ArmyCounts {attackers = 5, defenders = 6}
--- >>> let b = ArmyCounts {attackers = 4, defenders = 6}
+-- >>> let a = ArmyCounts {attackers = 0, defenders = -1}
+-- >>> let b = ArmyCounts {attackers = -1, defenders = 0}
 -- >>> a `mappend` b
--- ArmyCounts {attackers = -1, defenders = 0}
+-- ArmyCounts {attackers = -1, defenders = -1}
 --
 instance Monoid ArmyCounts where
     mempty                                    = ArmyCounts { attackers = 0, defenders = 0 }
-    mappend (ArmyCounts a b) (ArmyCounts x y) = ArmyCounts { attackers = x - a, defenders = y - b}
+    mappend (ArmyCounts a b) (ArmyCounts x y) = ArmyCounts { attackers = a + x, defenders = b + y}
 
 
 -- | Exercise 4
 -- computes the change in the number of armies resulting from the rolls
 -- >>> battleResults [3,6,4] [5,5]
 -- ArmyCounts {attackers = -1, defenders = -1}
+-- >>> battleResults [3,6,4] [5,6]
+-- ArmyCounts {attackers = -2, defenders = 0}
+-- >>> battleResults [4] [3,2]
+-- ArmyCounts {attackers = 0, defenders = -1}
 --
 battleResults :: [DieRoll] -> [DieRoll] -> ArmyCounts
 battleResults ab cd = roll sx sy
-    where sx = reverse $ sort ab
-          sy = reverse $ sort cd
+    where sx = sortBy (flip compare) ab
+          sy = sortBy (flip compare) cd
           roll :: [DieRoll] -> [DieRoll] -> ArmyCounts
-          roll (a:xs) (b:ys) = ArmyCounts { attackers = a, defenders = b } `mappend` (roll xs ys)
-          roll [] [b] = ArmyCounts { attackers = 0, defenders = 0}
-          roll [a] [] = (ArmyCounts 0 0)
-          roll [] [] = (ArmyCounts 0 0)
+          roll [] [] = ArmyCounts 0 0
+          roll [_] [] = ArmyCounts 0 0
+          roll [] [_] = ArmyCounts 0 0
+          roll (a:xs) (b:ys)
+            | a > b = ArmyCounts { attackers = 0, defenders = -1} `mappend` roll xs ys
+            | otherwise =  ArmyCounts { attackers = -1, defenders = 0 } `mappend` roll xs ys
