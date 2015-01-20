@@ -5,6 +5,7 @@ import Text.Read
 import Data.List
 import Data.Monoid
 import Control.Monad.Random
+import Control.Monad (replicateM)
 
 -- | Exercise 1: detect wether a string as a certain format and return
 -- true
@@ -88,9 +89,19 @@ battleResults ab cd = roll sx sy
     where sx = sortBy (flip compare) ab
           sy = sortBy (flip compare) cd
           roll :: [DieRoll] -> [DieRoll] -> ArmyCounts
-          roll [] [] = ArmyCounts 0 0
-          roll [_] [] = ArmyCounts 0 0
-          roll [] [_] = ArmyCounts 0 0
           roll (a:xs) (b:ys)
             | a > b = ArmyCounts { attackers = 0, defenders = -1} `mappend` roll xs ys
             | otherwise =  ArmyCounts { attackers = -1, defenders = 0 } `mappend` roll xs ys
+          roll _ _ = ArmyCounts 0 0
+
+
+-- | Exercise 5
+-- simulates single battle
+--
+battle :: ArmyCounts -> StdRand ArmyCounts
+battle (ArmyCounts a b) = do
+    let turns = minimum [a,b]
+    attackersRolls <- replicateM turns dieRoll
+    defendersRolls <- replicateM turns dieRoll
+    let r = battleResults attackersRolls defendersRolls
+    return r
