@@ -40,6 +40,12 @@ mod5ParsingWorks = (parse "10" == Just (MkMod 10, "")) &&
 
 
 -- | Exercise 3
+-- >>> parse "[[" :: Maybe (Mat2x2, String)
+-- Nothing
+-- >>> parse "[[1,2][3,4]]" :: Maybe (Mat2x2, String)
+-- Just (Mat2x2 1 2 3 4, "")
+-- >>> mat2ParsingWorks
+-- True
 data Mat2x2 = Mat2x2 Integer Integer Integer Integer
     deriving (Show)
 
@@ -52,7 +58,18 @@ instance Ring Mat2x2 where
     mul (Mat2x2 a b c d) (Mat2x2 w x y z) = Mat2x2 (a * w + b * y) (a * x + b * z) (c * w + d * x) (c * x + d * z)
 
 instance Parsable Mat2x2 where
-    parse str = listToMatrix
+    parse str = listToMatrix [str]
         where
-        listToMatrix ["[[", n, ",", m, "][", p, ",", q, "]]"] = Just $ Mat2x2(read n :: Integer) (read m :: Integer) (read p :: Integer) (read q :: Integer)
+        listToMatrix ["[[", n, ",", m, "][", p, ",", q, "]]"] = Just $ (Mat2x2(read n :: Integer) (read m :: Integer) (read p :: Integer) (read q :: Integer), "")
         listToMatrix _ = Nothing
+
+-- | Eq instnace for Mat2x2
+-- >>> Mat2x2 1 2 3 4 == Mat2x2 1 2 3 4
+-- True
+-- >>> Mat2x2 1 2 3 4 /= Mat2x2 0 2 3 4
+-- True
+instance Eq Mat2x2 where
+    (==) (Mat2x2 a b c d) (Mat2x2 m n o p) = a == m && b == n && c == o && d == p
+
+mat2ParsingWorks :: Bool
+mat2ParsingWorks = (parse "[[1,2][8,-2]]" == Just (Mat2x2 1 2 8 (-2), ""))
