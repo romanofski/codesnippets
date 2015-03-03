@@ -3,6 +3,8 @@ module HW05 where
 import Ring
 import Parser
 import Data.Maybe
+import Data.Char
+import Data.List (group)
 import Text.Read (readMaybe)
 
 
@@ -20,7 +22,7 @@ data Mod5 = MkMod Integer
 
 instance Ring Mod5 where
     addId = MkMod 0
-    addInv (MkMod x) = MkMod (((-x `mod` 5) + (x `mod` 5)) `mod` 5)
+    addInv (MkMod x) = MkMod (negate x)
     mulId = MkMod 1
 
     add (MkMod x) (MkMod y) = MkMod ((x + y) `mod` 5)
@@ -42,8 +44,8 @@ mod5ParsingWorks = (parse "10" == Just (MkMod 10, "")) &&
 -- | Exercise 3
 -- >>> parse "[[" :: Maybe (Mat2x2, String)
 -- Nothing
--- >>> parse "[[12,2][3,4]]" :: Maybe (Mat2x2, String) == Just (Mat2x2 13 2 3 4, "")
--- Just (Mat2x2 12 2 3 4,"")
+-- >>> parse "[[1,2][3,4]]" :: Maybe (Mat2x2, String)
+-- Just (Mat2x2 1 2 3 4,"")
 --
 data Mat2x2 = Mat2x2 Integer Integer Integer Integer
     deriving (Show)
@@ -51,16 +53,20 @@ data Mat2x2 = Mat2x2 Integer Integer Integer Integer
 instance Ring Mat2x2 where
     addId = Mat2x2 0 0 0 0
     addInv (Mat2x2 a b c d) = Mat2x2 (negate a) (negate b) (negate c) (negate d)
-    mulId = Mat2x2 1 0 1 0
+    mulId = Mat2x2 1 0 0 1
 
     add (Mat2x2 a b c d) (Mat2x2 w x y z) = Mat2x2 (a + w) (b + x) (c + y) (d + z)
-    mul (Mat2x2 a b c d) (Mat2x2 w x y z) = Mat2x2 (a * w + b * y) (a * x + b * z) (c * w + d * x) (c * x + d * z)
+    mul (Mat2x2 a b c d) (Mat2x2 w x y z) = Mat2x2 (a * w + b * y) (a * x + b * z) (c * w + d * y) (c * x + d * z)
+
 
 instance Parsable Mat2x2 where
-    parse str = lstToMatrix [str]
+    parse str = lstToMatrix $ strToList str
         where
-        lstToMatrix ["[[", n, ",", m, "][", p, ",", q, "]]"] = Just (Mat2x2 (read n :: Integer) (read m :: Integer) (read p :: Integer) (read q :: Integer), "")
-        lstToMatrix _ = Nothing
+        strToList xs = mapMaybe readMaybeInt $ group xs
+
+lstToMatrix :: [Integer] -> Maybe (Mat2x2, String)
+lstToMatrix (a:b:c:d:_) = Just (Mat2x2 a b c d, "")
+lstToMatrix _ = Nothing
 
 readMaybeInt :: String -> Maybe Integer
 readMaybeInt = readMaybe

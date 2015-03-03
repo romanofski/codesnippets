@@ -22,7 +22,7 @@ data Mod5 = MkMod Integer
 
 instance Ring Mod5 where
     addId = MkMod 0
-    addInv (MkMod x) = MkMod (((-x `mod` 5) + (x `mod` 5)) `mod` 5)
+    addInv (MkMod x) = MkMod (negate x)
     mulId = MkMod 1
 
     add (MkMod x) (MkMod y) = MkMod ((x + y) `mod` 5)
@@ -53,10 +53,11 @@ data Mat2x2 = Mat2x2 Integer Integer Integer Integer
 instance Ring Mat2x2 where
     addId = Mat2x2 0 0 0 0
     addInv (Mat2x2 a b c d) = Mat2x2 (negate a) (negate b) (negate c) (negate d)
-    mulId = Mat2x2 1 0 1 0
+    mulId = Mat2x2 1 0 0 1
 
     add (Mat2x2 a b c d) (Mat2x2 w x y z) = Mat2x2 (a + w) (b + x) (c + y) (d + z)
-    mul (Mat2x2 a b c d) (Mat2x2 w x y z) = Mat2x2 (a * w + b * y) (a * x + b * z) (c * w + d * x) (c * x + d * z)
+    mul (Mat2x2 a b c d) (Mat2x2 w x y z) = Mat2x2 (a * w + b * y) (a * x + b * z) (c * w + d * y) (c * x + d * z)
+
 
 instance Parsable Mat2x2 where
     parse str = lstToMatrix $ strToList str
