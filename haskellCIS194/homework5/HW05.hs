@@ -48,7 +48,7 @@ mod5ParsingWorks = (parse "10" == Just (MkMod 10, "")) &&
 -- Just (Mat2x2 1 2 3 4,"")
 --
 data Mat2x2 = Mat2x2 Integer Integer Integer Integer
-    deriving (Show)
+    deriving (Show, Eq)
 
 instance Ring Mat2x2 where
     addId = Mat2x2 0 0 0 0
@@ -70,11 +70,3 @@ lstToMatrix _ = Nothing
 
 readMaybeInt :: String -> Maybe Integer
 readMaybeInt = readMaybe
-
--- | Eq instnace for Mat2x2
--- >>> Mat2x2 1 2 3 4 == Mat2x2 1 2 3 4
--- True
--- >>> Mat2x2 1 2 3 4 /= Mat2x2 0 2 3 4
--- True
-instance Eq Mat2x2 where
-    (==) (Mat2x2 a b c d) (Mat2x2 m n o p) = a == m && b == n && c == o && d == p
