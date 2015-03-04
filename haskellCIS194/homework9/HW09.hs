@@ -5,6 +5,11 @@ import Ring
 import Control.Monad (liftM4)
 
 
+main :: IO ()
+main = do
+  quickCheck (propRing :: Mod5 -> Mod5 -> Mod5 -> Property)
+  quickCheck (propRing :: Mat2x2 -> Mat2x2 -> Mat2x2 -> Property)
+
 -- | Exercise 1
 --
 instance Arbitrary Mod5 where
