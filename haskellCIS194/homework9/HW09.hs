@@ -5,25 +5,6 @@ import Ring
 import Control.Monad (liftM4)
 
 
-main :: IO ()
-main = do
-  quickCheck (prop_addId :: Mod5 -> Bool)
-  quickCheck (prop_addId :: Mat2x2 -> Bool)
-  quickCheck (prop_associative :: Mod5 -> Mod5 -> Mod5 -> Bool)
-  quickCheck (prop_associative :: Mat2x2 -> Mat2x2-> Mat2x2 -> Bool)
-  quickCheck (prop_addInv :: Mod5 -> Bool)
-  quickCheck (prop_addInv :: Mat2x2 -> Bool)
-  quickCheck (prop_commutative :: Mod5 -> Mod5 -> Bool)
-  quickCheck (prop_commutative :: Mat2x2 -> Mat2x2 -> Bool)
-  quickCheck (prop_isMonoid :: Mod5 -> Mod5 -> Mod5 -> Bool)
-  quickCheck (prop_isMonoid :: Mat2x2 -> Mat2x2 -> Mat2x2 -> Bool)
-  quickCheck (prop_mulId :: Mod5 -> Bool)
-  quickCheck (prop_mulId :: Mat2x2 -> Bool)
-  quickCheck (prop_leftDistributivity :: Mod5 -> Mod5 -> Mod5 -> Bool)
-  quickCheck (prop_leftDistributivity :: Mat2x2 -> Mat2x2 -> Mat2x2 -> Bool)
-  quickCheck (prop_rightDistributivity :: Mod5 -> Mod5 -> Mod5 -> Bool)
-  quickCheck (prop_rightDistributivity :: Mat2x2 -> Mat2x2 -> Mat2x2 -> Bool)
-
 -- | Exercise 1
 --
 instance Arbitrary Mod5 where
@@ -36,18 +17,42 @@ instance Arbitrary Mat2x2 where
 
 -- | Exercise 2
 --
+prop_associative :: (Eq a, Ring a) => a -> a -> a -> Bool
 prop_associative a b c = (a `add` b) `add` c == a `add` (b `add` c)
 
+prop_addId :: (Eq a, Ring a) => a -> Bool
 prop_addId x = x `add` addId == x
 
+prop_addInv :: (Eq a, Ring a) => a -> Bool
 prop_addInv x = x `add` (addInv x) == addId
 
+prop_commutative :: (Eq a, Ring a) => a -> a -> Bool
 prop_commutative a b = a `add` b == b `add` a
 
+prop_isMonoid :: (Eq a, Ring a) => a -> a -> a -> Bool
 prop_isMonoid a b c = (a `mul` b) `mul` c == a `mul` (b `mul` c)
 
+prop_mulId :: (Eq a, Ring a) => a -> Bool
 prop_mulId a = a `mul` mulId == a
 
+prop_leftDistributivity :: (Eq a, Ring a) => a -> a -> a -> Bool
 prop_leftDistributivity a b c = a `mul` (b `add` c) == (a `mul` b) `add` (a `mul` c)
 
+prop_rightDistributivity :: (Eq a, Ring a) => a -> a -> a -> Bool
 prop_rightDistributivity a b c = (b `add` c) `mul` a == (b `mul` a) `add` (c `mul` a)
+
+-- | Exercise 3
+--
+-- prop> propRing a b (c :: Mod5)
+-- prop> propRing a b (c :: Mat2x2)
+propRing :: (Eq a, Ring a) => a -> a -> a -> Property
+propRing a b c = conjoin [
+      prop_addId a
+    , prop_addInv a
+    , prop_mulId a
+    , prop_associative a b c
+    , prop_commutative a b
+    , prop_isMonoid a b c
+    , prop_leftDistributivity a b c
+    , prop_rightDistributivity a b c
+    ]
