@@ -46,8 +46,8 @@ addEdge (x,y) g
 
 -- | returns the amount of vertices
 -- >>> let g = mkGraph [(1,2), (2, 3), (3, 3), (2, 5)] HM.empty
--- >>> numVertices g
+-- >>> numV g
 -- 4
 --
-numVertices :: Graph k a-> Int
-numVertices = HM.size
+numV :: Graph k a -> Int
+numV = HM.size
