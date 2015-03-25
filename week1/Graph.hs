@@ -2,20 +2,15 @@
 --
 module Graph where
 
--- import Test.QuickCheck
--- import Control.Monad (replicateM)
-import Data.Vector
-import Prelude hiding (length)
+import qualified Data.HashMap.Strict as HM
+import qualified Data.List as L
 
+type Edge = (Vertex, Vertex)
 
-type Edge = Integer
+type Vertex = Int
 
-data Node a = Empty
-            | Vertex Edge (Node a)
-    deriving (Show, Eq)
-
-data Graph a = Graph (Vector (Node a))
-    deriving Show
+type Graph k a = HM.HashMap Vertex    -- Vertex
+                            [Vertex]  -- Neighbours XXX not a set, so keeping it free of duplicates is a performance hit
 
 
 {-
@@ -27,30 +22,27 @@ instance Arbitrary a => Arbitrary (Set a) where
 -}
 
 -- | Creates a graph from a list
--- >>> mkGraph [(1, 2), (2, 3), (2, 2)] (Graph [])
--- Graph [Node (1,fromList [2]),Node (2,fromList [1,3])]
-mkGraph :: [(Integer, Integer)] -> Graph a -> Graph a
+-- >>> mkGraph [(1,2)] HM.empty
+-- fromList [(1,[2]),(2,[1])]
+-- >>> mkGraph [(1, 2), (2, 3), (2, 2)] HM.empty
+-- fromList [(1,[2]),(2,[2,3,1]),(3,[2])]
+--
+mkGraph :: [Edge] -> Graph k a -> Graph k a
 mkGraph ([]) g = g
-mkGraph ((x, y):xs) g = mkGraph xs (addEdge (Vertex x (Vertex y Empty)) g)
+mkGraph (x:xs) g = mkGraph xs (addEdge x g)
 
--- | adds a Vertex to the Graph
--- prop> addEdge x g == addEdge x (addEdge x g)
-addEdge :: Node a -> Graph a -> Graph a
-addEdge x@(Vertex _ (Vertex _ Empty)) (Graph xs) = Graph (x `cons` xs)
-addEdge x@(Vertex a b) (Graph xs) = case findEdge x xs of
-    Just (Vertex _ _) -> Graph xs
-    Nothing -> Graph (x `cons` xs)
--- addEdge (Graph (Node (Vertex a, xs):_)) _ b  = Graph [Node (a, insert b xs)]
+-- | adds an Edge to the Graph
+addEdge :: Edge -> Graph k a -> Graph k a
+addEdge (x,y) g
+    | HM.null g = merge y x (HM.singleton x [y])
+    | otherwise = merge y x (merge x y g)
+    where merge k v = HM.insertWith L.union k [v]
 
-findEdge :: Node a -> Vector (Node a) -> Maybe (Node a)
-findEdge x = find (== x)
 
 -- | returns the amount of vertices
--- >>> let g = mkGraph (Graph []) [(1,2), (2, 3), (3, 3), (2, 5)]
+-- >>> let g = mkGraph [(1,2), (2, 3), (3, 3), (2, 5)] HM.empty
 -- >>> numVertices g
 -- 4
 --
--- Quickcheck property which doesn't work yet
--- length [a] == numVertices [Node a]
-numVertices :: Graph a -> Int
-numVertices (Graph xs) = length xs
+numVertices :: Graph k a-> Int
+numVertices = HM.size
