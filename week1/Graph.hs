@@ -31,6 +31,11 @@ mkGraph :: [Edge] -> Graph k a -> Graph k a
 mkGraph ([]) g = g
 mkGraph (x:xs) g = mkGraph xs (addEdge x g)
 
+
+-- | vertices adjacent to v
+adj :: Vertex -> Graph k a -> Maybe [Vertex]
+adj = HM.lookup
+
 -- | adds an Edge to the Graph
 addEdge :: Edge -> Graph k a -> Graph k a
 addEdge (x,y) g
