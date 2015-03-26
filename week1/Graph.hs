@@ -84,3 +84,13 @@ avgDegree :: Graph k a -> Double
 avgDegree g = 2.0 * (e / v)
     where e = fromIntegral $ numE g
           v = fromIntegral $ numV g
+
+
+-- | count self loops
+-- >>> countSelfLoops $ mkGraph [(1,2),(2,3),(2,2)] HM.empty
+-- 1
+-- >>> countSelfLoops $ mkGraph [(1,2),(1,1),(1,4),(2,2)] HM.empty
+-- 2
+--
+countSelfLoops :: Graph k a -> Int
+countSelfLoops = HM.foldlWithKey' (\a k v -> if k `elem` v then a + 1 else a) 0
