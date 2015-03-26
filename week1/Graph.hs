@@ -2,6 +2,7 @@
 --
 module Graph where
 
+import Data.Maybe
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List as L
 
@@ -32,16 +33,17 @@ mkGraph ([]) g = g
 mkGraph (x:xs) g = mkGraph xs (addEdge x g)
 
 
--- | vertices adjacent to v
-adj :: Vertex -> Graph k a -> Maybe [Vertex]
-adj = HM.lookup
-
 -- | adds an Edge to the Graph
 addEdge :: Edge -> Graph k a -> Graph k a
 addEdge (x,y) g
     | HM.null g = merge y x (HM.singleton x [y])
     | otherwise = merge y x (merge x y g)
     where merge k v = HM.insertWith L.union k [v]
+
+
+-- | vertices adjacent to v
+adj :: Vertex -> Graph k a -> Maybe [Vertex]
+adj = HM.lookup
 
 
 -- | returns the amount of vertices
@@ -52,6 +54,7 @@ addEdge (x,y) g
 numV :: Graph k a -> Int
 numV = HM.foldl' (\a _ -> a + 1) 0
 
+
 -- | returns the amount of edges
 -- >>> let g = mkGraph [(1,2),(2,3),(2,2)] HM.empty
 -- >>> numE g == length (HM.toList g)
@@ -59,3 +62,25 @@ numV = HM.foldl' (\a _ -> a + 1) 0
 --
 numE :: Graph k a -> Int
 numE = HM.size
+
+
+-- | degree of a vertice
+--
+degree :: Vertex -> Graph k a -> Int
+degree x g =
+    case adj x g of
+        Just vs -> foldl (\a _ -> a + 1) 0 vs
+        Nothing -> 0
+
+-- | max degree
+--
+maxDegree :: Graph k a -> Int
+maxDegree g = maximum $ fmap length vals
+    where vals = mapMaybe (`adj` g) (HM.keys g)
+
+-- | average degree
+--
+avgDegree :: Graph k a -> Double
+avgDegree g = 2.0 * (e / v)
+    where e = fromIntegral $ numE g
+          v = fromIntegral $ numV g
