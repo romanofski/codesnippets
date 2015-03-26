@@ -45,9 +45,17 @@ addEdge (x,y) g
 
 
 -- | returns the amount of vertices
--- >>> let g = mkGraph [(1,2), (2, 3), (3, 3), (2, 5)] HM.empty
+-- >>> let g = mkGraph [(1,2), (1,2), (2, 3), (3, 3), (2, 5)] HM.empty
 -- >>> numV g
 -- 4
 --
 numV :: Graph k a -> Int
-numV = HM.size
+numV = HM.foldl' (\a _ -> a + 1) 0
+
+-- | returns the amount of edges
+-- >>> let g = mkGraph [(1,2),(2,3),(2,2)] HM.empty
+-- >>> numE g == length (HM.toList g)
+-- True
+--
+numE :: Graph k a -> Int
+numE = HM.size
