@@ -96,3 +96,26 @@ avgDegree g = 2.0 * (e / v)
 --
 countSelfLoops :: Graph k a -> Int
 countSelfLoops = HM.foldlWithKey' (\a k v -> if k `elem` v then a + 1 else a) 0
+
+
+-- | depth first search
+-- Find a path from a given to a goal Vertex
+--
+-- >>> let g =  mkGraph [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
+-- >>> dfs 0 [] [] g
+-- [0,6,2,1,5,0,4]
+dfs :: Vertex    -- start node
+    -> [Vertex]  -- nodes to_visit
+    -> [Vertex]  -- nodes visited
+    -> Graph k a -- the graph
+    -> [Vertex]  -- returned visited
+dfs x [] [] g = dfs x (getChildren x g []) [x] g
+dfs _ [] vs _ = vs
+dfs _ (x:xs) vs g
+    | x `elem` vs = vs
+    | otherwise = dfs next (getChildren x g xs) (vs ++ [x]) g
+    where next = head xs
+
+getChildren :: Vertex -> Graph k a -> [Vertex] -> [Vertex]
+getChildren k g xs = xs ++ to_visit
+    where to_visit = concat $ maybeToList $ adj k g
