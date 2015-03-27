@@ -25,8 +25,8 @@ instance Arbitrary a => Arbitrary (Set a) where
 -- | Creates a graph from a list
 -- >>> mkGraph [(1,2)] HM.empty
 -- fromList [(1,[2]),(2,[1])]
--- >>> mkGraph [(1, 2), (2, 3), (2, 2)] HM.empty
--- fromList [(1,[2]),(2,[2,3,1]),(3,[2])]
+-- >>> mkGraph [(0,5), (4,3), (0,1)] HM.empty
+-- fromList [(0,[5,1]),(1,[0]),(3,[4]),(4,[3]),(5,[0])]
 --
 mkGraph :: [Edge] -> Graph k a -> Graph k a
 mkGraph ([]) g = g
@@ -38,8 +38,10 @@ addEdge :: Edge -> Graph k a -> Graph k a
 addEdge (x,y) g
     | HM.null g = merge y x (HM.singleton x [y])
     | otherwise = merge y x (merge x y g)
-    where merge k v = HM.insertWith L.union k [v]
+    where merge k v = HM.insertWith mergeFunc k [v]
 
+mergeFunc :: Eq a => [a] -> [a] -> [a]
+mergeFunc new old = old `L.union` new
 
 -- | vertices adjacent to v
 adj :: Vertex -> Graph k a -> Maybe [Vertex]
