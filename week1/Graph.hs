@@ -1,10 +1,17 @@
 -- Graph using a List: no O(1) lookup
 --
+-- Order seems to be important the way you insert neighbours in the
+-- adjacency list, since it influences the way searches generate the
+-- neighbours to visit.
+--
 module Graph where
 
 import Data.Maybe
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List as L
+
+-- $setup
+-- >>> import Test.QuickCheck
 
 type Edge = (Vertex, Vertex)
 
@@ -12,7 +19,6 @@ type Vertex = Int
 
 type Graph k a = HM.HashMap Vertex    -- Vertex
                             [Vertex]  -- Neighbours XXX not a set, so keeping it free of duplicates is a performance hit
-
 
 {-
 instance Arbitrary a => Arbitrary (Set a) where
@@ -40,6 +46,9 @@ mkGraph (x:xs) g = mkGraph xs (addEdge x g)
 -- >>> mkGraph [(0,1),(0,2)] HM.empty
 -- fromList [(0,[2,1]),(1,[0]),(2,[0])]
 --
+-- No duplicates are expected if we add the same value twice:
+--
+-- prop> addEdge a (addEdge a HM.empty) == addEdge a HM.empty
 addEdge :: Edge -> Graph k a -> Graph k a
 addEdge (x,y) g
     | HM.null g = merge y x (HM.singleton x [y])
