@@ -25,23 +25,27 @@ instance Arbitrary a => Arbitrary (Set a) where
 -- | Creates a graph from a list
 -- >>> mkGraph [(1,2)] HM.empty
 -- fromList [(1,[2]),(2,[1])]
--- >>> mkGraph [(0,5), (4,3), (0,1)] HM.empty
--- fromList [(0,[5,1]),(1,[0]),(3,[4]),(4,[3]),(5,[0])]
 --
 mkGraph :: [Edge] -> Graph k a -> Graph k a
 mkGraph ([]) g = g
 mkGraph (x:xs) g = mkGraph xs (addEdge x g)
 
 
--- | adds an Edge to the Graph
+-- | Adds an Edge to the Graph. Note, the order we add does matter. It
+-- matters when we traverse the graph in depth first order, since
+-- children (neighbours) are traversed by the order we retrieve them.
+-- This is most of the time the vertices were added to the adjacency
+-- list.
+--
+-- >>> mkGraph [(0,1),(0,2)] HM.empty
+-- fromList [(0,[2,1]),(1,[0]),(2,[0])]
+--
 addEdge :: Edge -> Graph k a -> Graph k a
 addEdge (x,y) g
     | HM.null g = merge y x (HM.singleton x [y])
     | otherwise = merge y x (merge x y g)
-    where merge k v = HM.insertWith mergeFunc k [v]
+    where merge k v = HM.insertWith L.union k [v]
 
-mergeFunc :: Eq a => [a] -> [a] -> [a]
-mergeFunc new old = old `L.union` new
 
 -- | vertices adjacent to v
 adj :: Vertex -> Graph k a -> Maybe [Vertex]
