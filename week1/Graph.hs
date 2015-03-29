@@ -110,21 +110,53 @@ countSelfLoops = HM.foldlWithKey' (\a k v -> if k `elem` v then a + 1 else a) 0
 -- | depth first search
 -- Find a path from a given to a goal Vertex
 --
+-- Test graph:
+--
+--       /------\
+--      0 ---2   6
+--      |\      /
+--      | 1     |
+--      |      /
+--      5--3--4
+--       \---/
+--
 -- >>> let g =  mkGraph [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
--- >>> dfs 0 [] [] g
--- [0,6,2,1,5,0,4]
-dfs :: Vertex    -- start node
-    -> [Vertex]  -- nodes to_visit
-    -> [Vertex]  -- nodes visited
-    -> Graph k a -- the graph
-    -> [Vertex]  -- returned visited
-dfs x [] [] g = dfs x (getChildren x g []) [x] g
-dfs _ [] vs _ = vs
-dfs _ (x:xs) vs g
-    | x `elem` vs = vs
-    | otherwise = dfs next (getChildren x g xs) (vs ++ [x]) g
-    where next = head xs
+-- >>> dfs 0 g
+-- [0,6,2,1,5,4,3]
+dfs :: Vertex -> Graph k a -> [Vertex]
+dfs x g = search getChildren (head children) (tail children) [x] g
+    where children = getChildren x g []
 
 getChildren :: Vertex -> Graph k a -> [Vertex] -> [Vertex]
-getChildren k g xs = xs ++ to_visit
-    where to_visit = concat $ maybeToList $ adj k g
+getChildren k g xs = xs ++ adjToList k g
+
+
+-- | breadth first search
+-- Find a path from a given to a goal Vertex
+--
+-- We re-use the same test graph as for the dfs implementation.
+-- >>> let g =  mkGraph [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
+-- >>> bfs 0 g
+-- [0,6,2,4,1,5,3]
+bfs :: Vertex -> Graph k a -> [Vertex]
+bfs x g =
+    let f = getBFSChildren
+    in search f (head $ f x g []) (tail $ f x g []) [x] g
+
+getBFSChildren :: Vertex -> Graph k a -> [Vertex] -> [Vertex]
+getBFSChildren k g xs = adjToList k g ++ xs
+
+
+-- | generic search algorithm
+--
+search :: (Vertex -> Graph k a -> [Vertex] -> [Vertex])
+        -> Vertex                        -- start node
+        -> [Vertex]                      -- nodes to_visit
+        -> [Vertex]                      -- nodes visited
+        -> Graph k a                     -- the graph
+        -> [Vertex]                      -- returned visited
+search _ _ [] [] _ = []
+search _ _ [] vs _ = vs
+search f x (y:xs) vs g
+    | x `notElem` vs = search f y (f x g xs) (vs ++ [x]) g
+    | otherwise = search f y xs vs g
