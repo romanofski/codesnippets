@@ -51,6 +51,11 @@ addEdge (x,y) g
 adj :: Vertex -> Graph k a -> Maybe [Vertex]
 adj = HM.lookup
 
+-- | safe helper to convert Maybe adj to list. [] is returned in case no
+-- neighbours exist.
+--
+adjToList :: Vertex -> Graph k a -> [Vertex]
+adjToList k g = concat $ maybeToList $ adj k g
 
 -- | returns the amount of vertices
 -- >>> let g = mkGraph [(1,2), (1,2), (2, 3), (3, 3), (2, 5)] HM.empty
