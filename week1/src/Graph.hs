@@ -7,6 +7,7 @@
 --
 module Graph where
 
+import Data.Tuple (swap)
 import Data.Maybe
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List as L
@@ -50,10 +51,7 @@ addDirectedEdge (x,y) = HM.insertWith L.union x [y]
 --
 -- prop> addUndirectedEdge a (addUndirectedEdge a HM.empty) == addUndirectedEdge a HM.empty
 addUndirectedEdge :: Edge -> Graph k a -> Graph k a
-addUndirectedEdge (x,y) g
-    | HM.null g = merge y x (HM.singleton x [y])
-    | otherwise = merge y x (merge x y g)
-    where merge k v = HM.insertWith L.union k [v]
+addUndirectedEdge e = addDirectedEdge e . addDirectedEdge (swap e)
 
 
 -- | vertices adjacent to v
