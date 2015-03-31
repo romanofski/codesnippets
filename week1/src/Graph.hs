@@ -2,7 +2,8 @@
 --
 -- Order seems to be important the way you insert neighbours in the
 -- adjacency list, since it influences the way searches generate the
--- neighbours to visit.
+-- neighbours to visit. Ok - not. The matter is not the order, but
+-- applications like: find me the shortest path.
 --
 module Graph where
 
@@ -10,8 +11,6 @@ import Data.Maybe
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List as L
 
--- $setup
--- >>> import Test.QuickCheck
 
 type Edge = (Vertex, Vertex)
 
@@ -20,37 +19,38 @@ type Vertex = Int
 type Graph k a = HM.HashMap Vertex    -- Vertex
                             [Vertex]  -- Neighbours XXX not a set, so keeping it free of duplicates is a performance hit
 
-{-
-instance Arbitrary a => Arbitrary (Set a) where
-    arbitrary = sized $ \size -> do
-        len <- choose (0, size) :: Gen Int
-        vals <- replicateM len arbitrary
-        return $ fromList vals
--}
 
 -- | Creates a graph from a list
--- >>> mkGraph [(1,2)] HM.empty
+-- >>> mkGraph addUndirectedEdge [(1,2)] HM.empty
 -- fromList [(1,[2]),(2,[1])]
+-- >>> mkGraph addDirectedEdge [(1,2)] HM.empty
+-- fromList [(1,[2])]
 --
-mkGraph :: [Edge] -> Graph k a -> Graph k a
-mkGraph ([]) g = g
-mkGraph (x:xs) g = mkGraph xs (addEdge x g)
+mkGraph :: (Edge -> Graph k a -> Graph k a)     -- insertion function
+           -> [Edge]                            -- list of edges to insert
+           -> Graph k a                         -- graph to insert edges into
+           -> Graph k a                         -- result
+mkGraph _ ([]) g = g
+mkGraph f (x:xs) g = mkGraph f xs (f x g)
 
 
--- | Adds an Edge to the Graph. Note, the order we add does matter. It
--- matters when we traverse the graph in depth first order, since
--- children (neighbours) are traversed by the order we retrieve them.
--- This is most of the time the vertices were added to the adjacency
--- list.
+-- | Addes an Edge to a Graph creating a directed or symmetric directed
+-- graph.
 --
--- >>> mkGraph [(0,1),(0,2)] HM.empty
+addDirectedEdge :: Edge -> Graph k a -> Graph k a
+addDirectedEdge (x,y) = HM.insertWith L.union x [y]
+
+
+-- | Adds an Edge to the Graph.
+--
+-- >>> mkGraph addUndirectedEdge [(0,1),(0,2)] HM.empty
 -- fromList [(0,[2,1]),(1,[0]),(2,[0])]
 --
 -- No duplicates are expected if we add the same value twice:
 --
--- prop> addEdge a (addEdge a HM.empty) == addEdge a HM.empty
-addEdge :: Edge -> Graph k a -> Graph k a
-addEdge (x,y) g
+-- prop> addUndirectedEdge a (addUndirectedEdge a HM.empty) == addUndirectedEdge a HM.empty
+addUndirectedEdge :: Edge -> Graph k a -> Graph k a
+addUndirectedEdge (x,y) g
     | HM.null g = merge y x (HM.singleton x [y])
     | otherwise = merge y x (merge x y g)
     where merge k v = HM.insertWith L.union k [v]
@@ -67,7 +67,7 @@ adjToList :: Vertex -> Graph k a -> [Vertex]
 adjToList k g = concat $ maybeToList $ adj k g
 
 -- | returns the amount of vertices
--- >>> let g = mkGraph [(1,2), (1,2), (2, 3), (3, 3), (2, 5)] HM.empty
+-- >>> let g = mkGraph addUndirectedEdge [(1,2), (1,2), (2, 3), (3, 3), (2, 5)] HM.empty
 -- >>> numV g
 -- 4
 --
@@ -76,7 +76,7 @@ numV = HM.foldl' (\a _ -> a + 1) 0
 
 
 -- | returns the amount of edges
--- >>> let g = mkGraph [(1,2),(2,3),(2,2)] HM.empty
+-- >>> let g = mkGraph addUndirectedEdge [(1,2),(2,3),(2,2)] HM.empty
 -- >>> numE g == length (HM.toList g)
 -- True
 --
@@ -107,9 +107,9 @@ avgDegree g = 2.0 * (e / v)
 
 
 -- | count self loops
--- >>> countSelfLoops $ mkGraph [(1,2),(2,3),(2,2)] HM.empty
+-- >>> countSelfLoops $ mkGraph addUndirectedEdge [(1,2),(2,3),(2,2)] HM.empty
 -- 1
--- >>> countSelfLoops $ mkGraph [(1,2),(1,1),(1,4),(2,2)] HM.empty
+-- >>> countSelfLoops $ mkGraph addUndirectedEdge [(1,2),(1,1),(1,4),(2,2)] HM.empty
 -- 2
 --
 countSelfLoops :: Graph k a -> Int
@@ -129,9 +129,24 @@ countSelfLoops = HM.foldlWithKey' (\a k v -> if k `elem` v then a + 1 else a) 0
 --      5--3--4
 --       \---/
 --
--- >>> let g =  mkGraph [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
+-- >>> let g =  mkGraph addUndirectedEdge [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
 -- >>> dfs 0 g
 -- [0,6,2,1,5,4,3]
+--
+-- Test graph as a directed graph:
+--
+--      /-------۷
+--     0-->2    6
+--     |\->1    |
+--     |        |
+--     ۷        ۷
+--     5--->3<--4
+--      \-------^
+--
+-- >>> let g =  mkGraph addDirectedEdge [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
+-- >>> dfs 2 g
+-- [0,6,2,1,5,4,3]
+--
 dfs :: Vertex -> Graph k a -> [Vertex]
 dfs x g = search getChildren (head children) (tail children) [x] g
     where children = getChildren x g []
@@ -144,9 +159,10 @@ getChildren k g xs = xs ++ adjToList k g
 -- Find a path from a given to a goal Vertex
 --
 -- We re-use the same test graph as for the dfs implementation.
--- >>> let g =  mkGraph [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
+-- >>> let g =  mkGraph addUndirectedEdge [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
 -- >>> bfs 0 g
 -- [0,6,2,4,1,5,3]
+--
 bfs :: Vertex -> Graph k a -> [Vertex]
 bfs x g =
     let f = getBFSChildren
