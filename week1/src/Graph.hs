@@ -143,11 +143,14 @@ countSelfLoops = HM.foldlWithKey' (\a k v -> if k `elem` v then a + 1 else a) 0
 --
 -- >>> let g =  mkGraph addDirectedEdge [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
 -- >>> dfs 2 g
--- [0,6,2,1,5,4,3]
+-- [2]
+-- >>> dfs 5 g
+-- [5,3]
 --
 dfs :: Vertex -> Graph k a -> [Vertex]
-dfs x g = search getChildren (head children) (tail children) [x] g
-    where children = getChildren x g []
+dfs x g = case getChildren x g [] of
+    [] -> [x]
+    y:xs -> search getChildren y xs [x] g
 
 getChildren :: Vertex -> Graph k a -> [Vertex] -> [Vertex]
 getChildren k g xs = xs ++ adjToList k g
@@ -162,9 +165,9 @@ getChildren k g xs = xs ++ adjToList k g
 -- [0,6,2,4,1,5,3]
 --
 bfs :: Vertex -> Graph k a -> [Vertex]
-bfs x g =
-    let f = getBFSChildren
-    in search f (head $ f x g []) (tail $ f x g []) [x] g
+bfs x g = case getBFSChildren x g [] of
+    [] -> [x]
+    y:xs -> search getBFSChildren y xs [x] g
 
 getBFSChildren :: Vertex -> Graph k a -> [Vertex] -> [Vertex]
 getBFSChildren k g xs = adjToList k g ++ xs
