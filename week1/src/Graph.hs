@@ -5,10 +5,16 @@
 -- neighbours to visit. Ok - not. The matter is not the order, but
 -- applications like: find me the shortest path.
 --
+-- Doctests become slowly unmaintainable: they're missing setup code.
+--
+-- Quicktest tests are missing.
+--
 module Graph where
 
 import Data.Tuple (swap)
 import Data.Maybe
+import Control.Monad.State
+import qualified Queue as Q
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List as L
 
@@ -114,75 +120,56 @@ countSelfLoops :: Graph k a -> Int
 countSelfLoops = HM.foldlWithKey' (\a k v -> if k `elem` v then a + 1 else a) 0
 
 
--- | depth first search
--- Find a path from a given to a goal Vertex
---
--- Test graph:
---
---       /------\
---      0 ---2   6
---      |\      /
---      | 1     |
---      |      /
---      5--3--4
---       \---/
---
--- >>> let g =  mkGraph addUndirectedEdge [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
--- >>> dfs 0 g
--- [0,6,2,1,5,4,3]
---
--- Test graph as a directed graph:
---
---      /-------۷
---     0-->2    6
---     |\->1    |
---     |        |
---     ۷        ۷
---     5--->3<--4
---      \-------^
---
--- >>> let g =  mkGraph addDirectedEdge [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
--- >>> dfs 2 g
--- [2]
--- >>> dfs 5 g
--- [5,3]
---
-dfs :: Vertex -> Graph k a -> [Vertex]
-dfs x g = case getChildren x g [] of
-    [] -> [x]
-    y:xs -> search getChildren y xs [x] g
-
-getChildren :: Vertex -> Graph k a -> [Vertex] -> [Vertex]
-getChildren k g xs = xs ++ adjToList k g
-
-
 -- | breadth first search
 -- Find a path from a given to a goal Vertex
 --
 -- We re-use the same test graph as for the dfs implementation.
 -- >>> let g =  mkGraph addUndirectedEdge [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
 -- >>> bfs 0 g
--- [0,6,2,4,1,5,3]
+-- [0,6,2,1,5,4,3]
+--
+-- >>> let g =  mkGraph addDirectedEdge [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
+-- >>> bfs 0 g
+-- [0,6,2,1,5,4,3]
 --
 bfs :: Vertex -> Graph k a -> [Vertex]
-bfs x g = case getBFSChildren x g [] of
-    [] -> [x]
-    y:xs -> search getBFSChildren y xs [x] g
+bfs x = go [x] (Q.Queue [x][])
+        where go vs (Q.Queue [] []) _ = vs
+              go vs q g = go vs' q' g
+                where (vs', q') = runState (bfsSearchChildren siftChildren vs g) q
 
-getBFSChildren :: Vertex -> Graph k a -> [Vertex] -> [Vertex]
-getBFSChildren k g xs = adjToList k g ++ xs
-
-
--- | generic search algorithm
+-- | breadth first search helper
+-- This function takes a monadic function which queues all
+-- unvisited nodes, and then marks the queued, unvisited nodes as
+-- visited.
 --
-search :: (Vertex -> Graph k a -> [Vertex] -> [Vertex])
-        -> Vertex                        -- start node
-        -> [Vertex]                      -- nodes to_visit
-        -> [Vertex]                      -- nodes visited
-        -> Graph k a                     -- the graph
-        -> [Vertex]                      -- returned visited
-search _ _ [] [] _ = []
-search _ _ [] vs _ = vs
-search f x (y:xs) vs g
-    | x `notElem` vs = search f y (f x g xs) (vs ++ [x]) g
-    | otherwise = search f y xs vs g
+bfsSearchChildren :: ([Vertex] -> [Vertex] -> State (Q.Queue Vertex) [Vertex])
+                     -> [Vertex]
+                     -> Graph k a
+                     -> State (Q.Queue Vertex) [Vertex]
+bfsSearchChildren f vs g = state Q.deq >>= \x -> case x of
+        Just y -> f (adjToList y g) vs
+        Nothing -> return []
+
+-- | Breadth First Search Helper
+-- Returns a new list of visited nodes, while having enqueued all
+-- unvisited nodes.
+--
+-- >>> let q = Q.Queue [] []
+-- >>> evalState (siftChildren [] [1,2]) q
+-- [1,2]
+-- >>> runState (siftChildren [1,2] []) q
+-- ([1,2],Queue [] [2,1])
+-- >>> runState (siftChildren [1,2] [2]) q
+-- ([2,1],Queue [] [1])
+--
+siftChildren :: Eq a =>
+                [a]                                -- children
+                -> [a]                             -- visited nodes
+                -> State (Q.Queue a) [a]      -- queue in state monad
+siftChildren [] vs = return vs
+siftChildren xs vs = do
+    let unvisited = xs L.\\ vs
+    mapM_ statefulEnq unvisited
+    return $ vs `L.union` unvisited
+    where statefulEnq x = void $ state (\q -> ((), Q.enq x q))
