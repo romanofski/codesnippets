@@ -17,6 +17,7 @@ cabal-version:       >=1.10
 
 executable week1
   main-is:             Main.hs
+  other-modules:       DFS
   build-depends:       base >=4.6 && <4.7
                      , unordered-containers >=0.2 && <0.3
                      , QuickCheck
