@@ -20,7 +20,7 @@ import qualified Data.HashMap.Strict as HM
 --       \---/
 --
 -- >>> dfs 0 udg
--- [0,6,2,1,5,4,3]
+-- [0,6,4,5,3,2,1]
 --
 -- Test graph as a directed graph:
 --
@@ -32,30 +32,22 @@ import qualified Data.HashMap.Strict as HM
 --     5--->3<--4
 --      \-------^
 --
+-- >>> dfs 0 dg
+-- [0,6,4,3,2,1,5]
 -- >>> dfs 2 dg
 -- [2]
 -- >>> dfs 5 dg
--- [5,3]
+-- [5,3,4]
+-- >>> dfs 1 dg
+-- [1]
 --
 dfs :: Vertex -> Graph k a -> [Vertex]
-dfs x g = case getChildren x g [] of
-    [] -> [x]
-    y:xs -> search getChildren y xs [x] g
-
-getChildren :: Vertex -> Graph k a -> [Vertex] -> [Vertex]
-getChildren k g xs = xs ++ adjToList k g
-
-search :: (Vertex -> Graph k a -> [Vertex] -> [Vertex])
-        -> Vertex                        -- start node
-        -> [Vertex]                      -- nodes to_visit
-        -> [Vertex]                      -- nodes visited
-        -> Graph k a                     -- the graph
-        -> [Vertex]                      -- returned visited
-search _ _ [] [] _ = []
-search _ _ [] vs _ = vs
-search f x (y:xs) vs g
-    | x `notElem` vs = search f y (f x g xs) (vs ++ [x]) g
-    | otherwise = search f y xs vs g
+dfs x = go [x] []
+    where
+        go [] vs _ = vs
+        go (n:xs) vs g
+            | n `notElem` vs = go (adjToList n g ++ xs) (vs ++ [n]) g
+            | otherwise = go xs vs g
 
 -- | post order topological sort
 --
