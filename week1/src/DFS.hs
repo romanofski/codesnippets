@@ -1,9 +1,10 @@
 module DFS where
 
 import Graph
+import Data.List
 import qualified Data.HashMap.Strict as HM
 -- $setup
--- >>> let udg =  mkGraph addUndirectedEdge [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
+-- >>> let udg =  mkGraph addUndirectedEdge [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3),(7,8)] HM.empty
 -- >>> let dg =  mkGraph addDirectedEdge [(0,5),(4,3),(0,1),(6,4),(5,4),(0,2),(0,6),(5,3)] HM.empty
 
 -- | depth first search
@@ -48,6 +49,43 @@ dfs x = go [x] []
         go (n:xs) vs g
             | n `notElem` vs = go (adjToList n g ++ xs) (vs ++ [n]) g
             | otherwise = go xs vs g
+
+-- | connected components
+-- This code uses a single hashmap to create the list of connected
+-- components. Instead of using a list to track visited items, we simply
+-- use the presence or absence of a node in our hashmap to determine it
+-- has been visited or not.
+--
+-- >>> let g = mkGraph addUndirectedEdge [(0,1),(7,8),(3,4),(4,5)] HM.empty
+-- >>> cc 0 (HM.keys g) g HM.empty
+-- fromList [(0,0),(1,0),(3,1),(4,1),(5,1),(7,2),(8,2)]
+cc :: Int -> [Vertex] -> Graph k a -> HM.HashMap Vertex Int -> HM.HashMap Vertex Int
+cc _ [] _ m = m
+cc i (x:xs) g m
+    | HM.lookupDefault (-1) x m == (-1) = cc (i+1) xs g (oneComponent i [x] g m)
+    | otherwise = cc i xs g m
+
+-- | helper to find one connected component
+-- >>> let g = mkGraph addUndirectedEdge [(0,1),(7,8)] HM.empty
+-- >>> oneComponent 0 [0] g HM.empty
+-- fromList [(0,0),(1,0)]
+--
+oneComponent :: Int -> [Vertex] -> Graph k a -> HM.HashMap Vertex Int -> HM.HashMap Vertex Int
+oneComponent _ [] _ m = m
+oneComponent i (x:xs) g m
+    | HM.lookupDefault (-1) x m == (-1) = oneComponent i xs' g (HM.insert x i m)
+    | otherwise = oneComponent i xs g m
+        where xs' = xs ++ dfs x g
+
+
+-- | connected components, alternative implementation
+--
+-- >>> cc' $ mkGraph addUndirectedEdge [(0,1),(7,8)] HM.empty
+--[[1,0],[8,7]]
+cc' :: Graph k a -> [[Vertex]]
+cc' g = foldl (\a x -> if sort (head a) == sort x then a else x:a) [head groups] groups
+    where groups = foldl (\a x -> dfs x g : a) [] (HM.keys g)
+
 
 -- | post order topological sort
 --
