@@ -62,7 +62,7 @@ dfs x = go [x] []
 cc :: Int -> [Vertex] -> Graph k a -> HM.HashMap Vertex Int -> HM.HashMap Vertex Int
 cc _ [] _ m = m
 cc i (x:xs) g m
-    | HM.lookupDefault (-1) x m == (-1) = cc (i+1) xs g (oneComponent i [x] g m)
+    | Nothing <- HM.lookup x m = cc (i+1) xs g (oneComponent i [x] g m)
     | otherwise = cc i xs g m
 
 -- | helper to find one connected component
@@ -73,7 +73,7 @@ cc i (x:xs) g m
 oneComponent :: Int -> [Vertex] -> Graph k a -> HM.HashMap Vertex Int -> HM.HashMap Vertex Int
 oneComponent _ [] _ m = m
 oneComponent i (x:xs) g m
-    | HM.lookupDefault (-1) x m == (-1) = oneComponent i xs' g (HM.insert x i m)
+    | Nothing <- HM.lookup x m = oneComponent i xs' g (HM.insert x i m)
     | otherwise = oneComponent i xs g m
         where xs' = xs ++ dfs x g
 
