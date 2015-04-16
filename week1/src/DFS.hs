@@ -79,6 +79,10 @@ oneComponent i (x:xs) g m
 
 
 -- | connected components, alternative implementation
+-- This uses two folds to return sublists of connected components which
+-- are not enumerated. The enumeration is provided by the amount of
+-- sublists returned. It uses the unsafe `head` functions so expect it
+-- to blow up.
 --
 -- >>> cc' $ mkGraph addUndirectedEdge [(0,1),(7,8)] HM.empty
 --[[1,0],[8,7]]
