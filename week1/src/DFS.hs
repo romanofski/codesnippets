@@ -106,12 +106,32 @@ cc' g = foldl (\a x -> if sort (head a) == sort x then a else x:a) [head groups]
 -- | ۷       |    11---> 12
 -- ->5--->4<--
 --
+-- >>> topologicalSort (HM.keys dg) [] dg
+-- [5,0,6,4,3]
 -- >>> let g =  mkGraph addDirectedEdge [(0,5),(0,1),(2,0),(2,3),(0,6),(6,4),(5,4),(3,5),(7,6),(8,7),(6,9),(9,10),(9,11),(11,12),(9,12)] HM.empty
--- >>> topologicalSort [0] [] g
+-- >>> topologicalSort (HM.keys g) [] g
 -- [8,7,2,3,0,6,9,10,11,12,1,5,4]
+--
+-- Problem: not recursive, only for two levesl
+--
 topologicalSort :: [Vertex] -> [Vertex] -> Graph k a -> [Vertex]
-topologicalSort [x] [] g = topologicalSort [] [x] g
-topologicalSort [] vs _ = vs
 topologicalSort (x:xs) vs g
-    | x `notElem` vs = topologicalSort (dfs x g) vs g
-    | otherwise = topologicalSort xs (x:vs) g
+    | x `notElem` vs = returnLastDFS xs vs' [] g ++ returnLastDFS [x] vs [] g
+    | otherwise = topologicalSort xs vs g
+        where vs' = vs ++ returnLastDFS [x] vs [] g
+
+
+-- | Helper recurses with dfs the first node to be found by DFS until
+-- none are left to recurse. Returns the last recursed DFS node.
+--
+-- >>> returnLastDFS [0] [] [] dg
+-- [0,6,4,3]
+-- >>> returnLastDFS [3] (returnLastDFS [0] [] [] dg) [] dg ++ returnLastDFS [0] [] [] dg
+-- [0,6,4,3]
+-- >>> returnLastDFS [2] [] [] dg
+-- [2]
+returnLastDFS :: [Vertex] -> [Vertex] -> [Vertex] -> Graph k a -> [Vertex]
+returnLastDFS [] _ ys _ = ys
+returnLastDFS (x:xs) vs ys g
+    | x `notElem` vs = returnLastDFS (dfs x g) (x:vs) (ys ++ [x]) g
+    | otherwise = returnLastDFS xs vs ys g
