@@ -21,7 +21,7 @@ import qualified Data.HashMap.Strict as HM
 --       \---/
 --
 -- >>> dfs 0 udg
--- [0,6,4,5,3,2,1]
+-- [6,4,5,3,2,1]
 --
 -- Test graph as a directed graph:
 --
@@ -34,18 +34,19 @@ import qualified Data.HashMap.Strict as HM
 --      \-------^
 --
 -- >>> dfs 0 dg
--- [0,6,4,3,2,1,5]
+-- [6,4,3,2,1,5]
 -- >>> dfs 2 dg
--- [2]
+-- []
 -- >>> dfs 5 dg
--- [5,3,4]
+-- [3,4]
 -- >>> dfs 1 dg
--- [1]
+-- []
 --
 dfs :: Vertex -> Graph k a -> [Vertex]
 dfs x = go [x] []
     where
-        go [] vs _ = vs
+        go [] [] _ = []
+        go [] vs _ = tail vs
         go (n:xs) vs g
             | n `notElem` vs = go (adjToList n g ++ xs) (vs ++ [n]) g
             | otherwise = go xs vs g
