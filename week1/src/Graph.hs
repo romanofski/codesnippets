@@ -68,6 +68,11 @@ adj = HM.lookup
 adjToList :: Vertex -> Graph k a -> [Vertex]
 adjToList k g = concat $ maybeToList $ adj k g
 
+-- | Vertices of the Graph
+--
+vertices :: Graph k a -> [Vertex]
+vertices = HM.keys
+
 -- | returns the amount of vertices
 -- >>> let g = mkGraph addUndirectedEdge [(1,2), (1,2), (2, 3), (3, 3), (2, 5)] HM.empty
 -- >>> numV g
