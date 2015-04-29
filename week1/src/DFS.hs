@@ -107,18 +107,27 @@ cc' g = foldl (\a x -> if sort (head a) == sort x then a else x:a) [head groups]
 -- | ۷       |    11---> 12
 -- ->5--->4<--
 --
--- >>> topologicalSort (HM.keys dg) [] [] dg
--- [3,4,6,2,1,5,0]
 -- >>> let r = topologicalSort (HM.keys dg2) [] [] dg2
 --
 -- Reverse post order (without a stack, f y v m):
 -- >>> reverse r
 -- [8,7,2,3,0,5,1,6,4,9,10,11,12]
+-- >>> topologicalSort (HM.keys dg) [] [] dg
+-- [3,4,6,2,1,5,0]
+--
+-- Graph with a cycle. The current code does not detect the cycle, but
+-- rather cuts out the edge we've just visited resulting in a
+-- topological sort. :/
+--
+-- >>> let g = mkGraph addDirectedEdge [(0,1),(1,2),(1,3),(3,4),(4,5),(5,3)] HM.empty
+-- >>> topologicalSort (HM.keys g) [] [] g
+-- [5,3,4,2,1,0]
 --
 topologicalSort :: [Vertex] -> [Vertex] -> [Vertex] -> Graph k a -> [Vertex]
 topologicalSort [] [] result _       = result
 topologicalSort [] (x:mark) result g = topologicalSort mark [] (result ++ [x]) g
 topologicalSort (x:xs) mark result g
-    | x `notElem` result = topologicalSort xs [] result' g
+    | x `notElem` result,
+      x `notElem` mark   = topologicalSort xs [] result' g
     | otherwise          = topologicalSort xs mark result g
            where result' = topologicalSort (dfs x g) (x:mark) result g
