@@ -2,6 +2,7 @@
 --
 import Text.Parsec
 import XMLParser
+import Data.Maybe
 
 -- | finds uvrating
 --
@@ -9,14 +10,14 @@ import XMLParser
 -- >>> findRating "adelaide" xml
 -- "0.1"
 --
-findRating :: String -> [XML] ->  String
+findRating :: String -> [XML] ->  Maybe Float
 findRating locID (Element "stations" _ y:_) = findRating locID y
 findRating locID (Element "location" [Attribute attr] ys:xs)
     | locID == snd attr = findRating locID ys
     | otherwise = findRating locID xs
-findRating _ (Element "index" [] [Body rate]:_) = rate
+findRating _ (Element "index" [] [Body rate]:_) = readMaybe rate
 findRating locID (_:xs) = findRating locID xs
-findRating _ [] = ""
+findRating _ [] = Nothing
 
 main :: IO ()
 main = do
