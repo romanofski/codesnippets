@@ -4,7 +4,7 @@ import Data.Maybe
 
 -- |
 -- >>> parseContents "13 14"
--- [(13, 14)]
+-- Just (13,14)
 parseContents :: String -> Maybe (Int, Int)
 parseContents xs = lstToTuple $ strToList xs
     where strToList str = mapMaybe readMaybeInt (words str)

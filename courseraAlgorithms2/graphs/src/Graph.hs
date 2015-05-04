@@ -17,6 +17,8 @@ import qualified Data.HashMap.Strict as HM
 import qualified Data.List as L
 
 
+-- | Edge connecting two vertices
+--
 data Edge = Edge (Vertex, Vertex) Weight
     deriving (Show, Eq)
 
