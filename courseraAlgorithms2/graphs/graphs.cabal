@@ -38,3 +38,4 @@ test-suite doctests
   build-depends:       base >= 4.6 && <4.7
                      , graphs
                      , doctest
+                     , QuickCheck
