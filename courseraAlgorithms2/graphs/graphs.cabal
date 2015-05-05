@@ -38,4 +38,14 @@ test-suite doctests
   build-depends:       base >= 4.6 && <4.7
                      , graphs
                      , doctest
+
+test-suite proptests
+  type:                exitcode-stdio-1.0
+  main-is:             proptests.hs
+  hs-source-dirs:      tests
+  other-modules:       Arbitrary
+  default-language:    Haskell2010
+  build-depends:       base >= 4.6 && <4.7
+                     , graphs
+                     , unordered-containers >=0.2 && <0.3
                      , QuickCheck

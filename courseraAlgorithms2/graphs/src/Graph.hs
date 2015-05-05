@@ -84,7 +84,6 @@ addDirectedEdge e@(Edge(x,_) _) = HM.insertWith L.union x [e]
 --
 -- No duplicates are expected if we add the same value twice:
 --
--- prop> addUndirectedEdge a (addUndirectedEdge a HM.empty) == addUndirectedEdge a HM.empty
 addUndirectedEdge :: Edge -> Graph k a -> Graph k a
 addUndirectedEdge e@(Edge t w) = addDirectedEdge e . addDirectedEdge swapped
     where swapped = Edge (swap t) w
