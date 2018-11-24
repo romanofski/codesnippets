@@ -15,12 +15,16 @@ import Data.Tuple (swap)
 import Data.Maybe
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List as L
+import Test.QuickCheck (Arbitrary, arbitrary)
 
 
 -- | Edge connecting two vertices
 --
 data Edge = Edge (Vertex, Vertex) Weight
     deriving (Show, Eq)
+
+instance Arbitrary Edge where
+  arbitrary = Edge <$> arbitrary <*> arbitrary
 
 type Vertex = Int
 type Weight = Double
