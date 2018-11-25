@@ -43,7 +43,7 @@ import qualified Data.HashMap.Strict as HM
 -- >>> dfs 1 dg
 -- []
 --
-dfs :: Vertex -> Graph k a -> [Vertex]
+dfs :: Vertex -> Graph -> [Vertex]
 dfs x = go [x] []
     where
         go [] [] _ = []
@@ -61,7 +61,7 @@ dfs x = go [x] []
 -- >>> let g = mkGraph addUndirectedEdge [(0,1),(7,8),(3,4),(4,5)] HM.empty
 -- >>> cc 0 (HM.keys g) g HM.empty
 -- fromList [(0,0),(1,0),(3,1),(4,1),(5,1),(7,2),(8,2)]
-cc :: Int -> [Vertex] -> Graph k a -> HM.HashMap Vertex Int -> HM.HashMap Vertex Int
+cc :: Int -> [Vertex] -> Graph -> HM.HashMap Vertex Int -> HM.HashMap Vertex Int
 cc _ [] _ m = m
 cc i (x:xs) g m
     | Nothing <- HM.lookup x m = cc (i+1) xs g (oneComponent i [x] g m)
@@ -72,7 +72,7 @@ cc i (x:xs) g m
 -- >>> oneComponent 0 [0] g HM.empty
 -- fromList [(0,0),(1,0)]
 --
-oneComponent :: Int -> [Vertex] -> Graph k a -> HM.HashMap Vertex Int -> HM.HashMap Vertex Int
+oneComponent :: Int -> [Vertex] -> Graph -> HM.HashMap Vertex Int -> HM.HashMap Vertex Int
 oneComponent _ [] _ m = m
 oneComponent i (x:xs) g m
     | Nothing <- HM.lookup x m = oneComponent i xs' g (HM.insert x i m)
@@ -88,7 +88,7 @@ oneComponent i (x:xs) g m
 --
 -- >>> cc' $ mkGraph addUndirectedEdge [(0,1),(7,8)] HM.empty
 --[[1,0],[8,7]]
-cc' :: Graph k a -> [[Vertex]]
+cc' :: Graph -> [[Vertex]]
 cc' g = foldl (\a x -> if sort (head a) == sort x then a else x:a) [head groups] groups
     where groups = foldl (\a x -> dfs x g : a) [] (HM.keys g)
 
@@ -123,7 +123,7 @@ cc' g = foldl (\a x -> if sort (head a) == sort x then a else x:a) [head groups]
 -- >>> topologicalSort (HM.keys g) [] [] g
 -- [5,3,4,2,1,0]
 --
-topologicalSort :: [Vertex] -> [Vertex] -> [Vertex] -> Graph k a -> [Vertex]
+topologicalSort :: [Vertex] -> [Vertex] -> [Vertex] -> Graph -> [Vertex]
 topologicalSort [] [] result _       = result
 topologicalSort [] (x:mark) result g = topologicalSort mark [] (result ++ [x]) g
 topologicalSort (x:xs) mark result g

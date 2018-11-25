@@ -21,7 +21,7 @@ instance FromJSON JSONMap where
 fromFile :: FilePath -> IO (Either String JSONMap)
 fromFile = eitherDecodeFileStrict
 
-toGraph :: JSONMap -> Graph k a
+toGraph :: JSONMap -> Graph
 toGraph (JSONMap m) = buildUndirectedGraph $ foldr (\x a -> a <> buildEdgeToNodes x) [] m
 
 -- |
