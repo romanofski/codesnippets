@@ -97,13 +97,13 @@ addUndirectedEdge e@(Edge t w) = addDirectedEdge e . addDirectedEdge swapped
 -- | vertices adjacent to v
 adj :: Vertex -> Graph -> Maybe [Vertex]
 adj v g = Just adjVertices
-    where edges = concat . maybeToList $ adjE v g
+    where edges = adjE v g
           adjVertices = fmap extractVertex edges
 
 -- | Edges adjacent to v
 --
-adjE :: Vertex -> Graph -> Maybe [Edge]
-adjE = HM.lookup
+adjE :: Vertex -> Graph -> [Edge]
+adjE v g = fromMaybe [] $ HM.lookup v g
 
 -- | safe helper to convert Maybe adj to list. [] is returned in case no
 -- neighbours exist.
