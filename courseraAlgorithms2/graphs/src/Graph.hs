@@ -29,7 +29,7 @@ instance Arbitrary Edge where
 type Vertex = Int
 type Weight = Double
 
-type Graph k a = HM.HashMap Vertex  -- Vertex
+type Graph = HM.HashMap Vertex  -- Vertex
                             [Edge]  -- Neighbours XXX not a set, so keeping it free of duplicates is a performance hit
 
 
@@ -43,18 +43,18 @@ edgeFromTuple (x, y, w) = Edge (x, y) w
 
 -- | builds a directed Graph from a list of 3-Tuples
 --
-buildDirectedGraph :: [(Vertex, Vertex, Weight)] -> Graph k a
+buildDirectedGraph :: [(Vertex, Vertex, Weight)] -> Graph
 buildDirectedGraph = foldl (\a t -> mkGraph addDirectedEdge [edgeFromTuple t] a) HM.empty
 
-buildDirectedGraphT :: [(Vertex, Vertex)] ->  Graph k a
+buildDirectedGraphT :: [(Vertex, Vertex)] ->  Graph
 buildDirectedGraphT = buildDirectedGraph . defaultWeight
 
 -- | builds a undirected Graph from a list of 3-Tuples
 --
-buildUndirectedGraph :: [(Vertex, Vertex, Weight)] -> Graph k a
+buildUndirectedGraph :: [(Vertex, Vertex, Weight)] -> Graph
 buildUndirectedGraph = foldl (\a t -> mkGraph addUndirectedEdge [edgeFromTuple t] a) HM.empty
 
-buildUndirectedGraphT :: [(Vertex, Vertex)] -> Graph k a
+buildUndirectedGraphT :: [(Vertex, Vertex)] -> Graph
 buildUndirectedGraphT = buildUndirectedGraph . defaultWeight
 
 -- | Helper method to return a given list of Tuples with a default
@@ -69,10 +69,10 @@ defaultWeight = fmap (\(x,y) -> (x,y,0))
 -- >>> buildDirectedGraphT [(1,2)]
 -- fromList [(1,[Edge (1,2) 0.0])]
 --
-mkGraph :: (Edge -> Graph k a -> Graph k a)     -- insertion function
+mkGraph :: (Edge -> Graph -> Graph)     -- insertion function
            -> [Edge]                            -- list of edges to insert
-           -> Graph k a                         -- graph to insert edges into
-           -> Graph k a                         -- result
+           -> Graph
+           -> Graph
 mkGraph _ ([]) g = g
 mkGraph f (x:xs) g = mkGraph f xs (f x g)
 
@@ -80,7 +80,7 @@ mkGraph f (x:xs) g = mkGraph f xs (f x g)
 -- | Addes an Edge to a Graph creating a directed or symmetric directed
 -- graph.
 --
-addDirectedEdge :: Edge -> Graph k a -> Graph k a
+addDirectedEdge :: Edge -> Graph -> Graph
 addDirectedEdge e@(Edge(x,_) _) = HM.insertWith L.union x [e]
 
 
@@ -89,31 +89,31 @@ addDirectedEdge e@(Edge(x,_) _) = HM.insertWith L.union x [e]
 -- No duplicates are expected if we add the same value twice:
 --
 -- prop> addUndirectedEdge a (addUndirectedEdge a HM.empty) == addUndirectedEdge a HM.empty
-addUndirectedEdge :: Edge -> Graph k a -> Graph k a
+addUndirectedEdge :: Edge -> Graph -> Graph
 addUndirectedEdge e@(Edge t w) = addDirectedEdge e . addDirectedEdge swapped
     where swapped = Edge (swap t) w
 
 
 -- | vertices adjacent to v
-adj :: Vertex -> Graph k a -> Maybe [Vertex]
+adj :: Vertex -> Graph -> Maybe [Vertex]
 adj v g = Just adjVertices
     where edges = concat . maybeToList $ adjE v g
           adjVertices = fmap extractVertex edges
 
 -- | Edges adjacent to v
 --
-adjE :: Vertex -> Graph k a -> Maybe [Edge]
+adjE :: Vertex -> Graph -> Maybe [Edge]
 adjE = HM.lookup
 
 -- | safe helper to convert Maybe adj to list. [] is returned in case no
 -- neighbours exist.
 --
-adjToList :: Vertex -> Graph k a -> [Vertex]
+adjToList :: Vertex -> Graph -> [Vertex]
 adjToList k g = concat $ maybeToList $ adj k g
 
 -- | Vertices of the Graph
 --
-vertices :: Graph k a -> [Vertex]
+vertices :: Graph -> [Vertex]
 vertices = HM.keys
 
 -- | returns the amount of vertices
@@ -121,7 +121,7 @@ vertices = HM.keys
 -- >>> numV g
 -- 4
 --
-numV :: Graph k a -> Int
+numV :: Graph -> Int
 numV = HM.foldl' (\a _ -> a + 1) 0
 
 
@@ -130,13 +130,13 @@ numV = HM.foldl' (\a _ -> a + 1) 0
 -- >>> numE g == length (HM.toList g)
 -- True
 --
-numE :: Graph k a -> Int
+numE :: Graph -> Int
 numE = HM.size
 
 
 -- | degree of a vertice
 --
-degree :: Vertex -> Graph k a -> Int
+degree :: Vertex -> Graph -> Int
 degree x g =
     case adj x g of
         Just vs -> foldl (\a _ -> a + 1) 0 vs
@@ -144,13 +144,13 @@ degree x g =
 
 -- | max degree
 --
-maxDegree :: Graph k a -> Int
+maxDegree :: Graph -> Int
 maxDegree g = maximum $ fmap length vals
     where vals = mapMaybe (`adj` g) (HM.keys g)
 
 -- | average degree
 --
-avgDegree :: Graph k a -> Double
+avgDegree :: Graph -> Double
 avgDegree g = 2.0 * (e / v)
     where e = fromIntegral $ numE g
           v = fromIntegral $ numV g
@@ -162,7 +162,7 @@ avgDegree g = 2.0 * (e / v)
 -- >>> countSelfLoops $ buildUndirectedGraphT [(1,2),(1,1),(1,4),(2,2)]
 -- 2
 --
-countSelfLoops :: Graph k a -> Int
+countSelfLoops :: Graph -> Int
 countSelfLoops g = foldl (\a k -> a + vCount k) 0 (vertices g)
     where vCount k = foldl (\b y -> if k == y then b + 1 else b) 0 (adjToList k g)
 

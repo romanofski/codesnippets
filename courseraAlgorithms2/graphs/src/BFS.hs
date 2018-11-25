@@ -18,7 +18,7 @@ import qualified Queue as Q
 -- >>> bfs 0 g
 -- [0,6,2,1,5,4,3]
 --
-bfs :: Vertex -> Graph k a -> [Vertex]
+bfs :: Vertex -> Graph -> [Vertex]
 bfs x = go [x] (Q.Queue [x][])
         where go vs (Q.Queue [] []) _ = vs
               go vs q g = go vs' q' g
@@ -31,7 +31,7 @@ bfs x = go [x] (Q.Queue [x][])
 --
 bfsSearchChildren :: ([Vertex] -> [Vertex] -> State (Q.Queue Vertex) [Vertex])
                      -> [Vertex]
-                     -> Graph k a
+                     -> Graph
                      -> State (Q.Queue Vertex) [Vertex]
 bfsSearchChildren f vs g = state Q.deq >>= \x -> case x of
         Just y -> f (adjToList y g) vs
