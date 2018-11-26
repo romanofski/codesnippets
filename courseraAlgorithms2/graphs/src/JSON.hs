@@ -6,7 +6,10 @@ module JSON (
   , parseOperations
   , ShortestPath(..)
   , shortestPathToType
-  , MapOperation(..)) where
+  , MapOperation(..)
+  -- re-exports from Data.Aeson
+  , encode
+  ) where
 
 import GHC.Generics (Generic)
 import Data.Aeson
@@ -95,6 +98,8 @@ newtype ShortestPath = ShortestPath { distance :: Integer }
 instance ToJSON ShortestPath where
   toEncoding = genericToEncoding defaultOptions
 
--- | convenience function to wrap the shortest path result in a type for encoding it to JSON
+
+-- | convenience function to wrap the shortest path result in a type for
+-- encoding it to JSON
 shortestPathToType :: Maybe Double -> Maybe ShortestPath
 shortestPathToType = fmap (ShortestPath . round)
