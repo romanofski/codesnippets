@@ -2,7 +2,9 @@ import qualified Options.Applicative.Builder as Builder
 import Options.Applicative.Types (Parser, ReadM(..))
 import Options.Applicative (execParser, helper, (<**>))
 
-import JSON (fromFile, toGraph, parseOperations, MapOperation(..))
+import JSON
+       (fromFile, toGraph, parseOperations, MapOperation(..), encode,
+        shortestPathToType)
 import Dijkstra (getShortestPath)
 
 -- |
@@ -34,4 +36,6 @@ run (Config fp (QueryDistance s d)) = do
   json <- fromFile fp
   case json of
     Left err -> print err
-    Right m -> print $ getShortestPath s d (toGraph m)
+    Right m -> asJSON m
+  where
+    asJSON = print . encode . shortestPathToType . getShortestPath s d . toGraph
