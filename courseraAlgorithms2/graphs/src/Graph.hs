@@ -84,6 +84,29 @@ addDirectedEdge :: Edge -> Graph -> Graph
 addDirectedEdge e@(Edge(x,_) _) = HM.insertWith L.union x [e]
 
 
+-- | Replaces the given edge. If the edge is not found no change is carried out
+-- on the graph
+-- >>> let g = buildUndirectedGraph [(1,2,10.0),(2,3,20.0),(3,1,30.0),(2,2,0.0)]
+-- >>> replaceUndirectedEdge (Edge (1,2) 5.0) g
+-- fromList [(1,[Edge (1,2) 5.0,Edge (1,3) 30.0]),(2,[Edge (2,1) 5.0,Edge (2,2) 0.0,Edge (2,3) 20.0]),(3,[Edge (3,1) 30.0,Edge (3,2) 20.0])]
+replaceUndirectedEdge :: Edge -> Graph -> Graph
+replaceUndirectedEdge e = HM.unionWith (replaceEdges e) (addUndirectedEdge e HM.empty)
+
+replaceEdges :: Edge -> [Edge] -> [Edge] -> [Edge]
+replaceEdges e@(Edge t w) new old = new `L.union` filterEdges swapped (filterEdges e old)
+  where
+    swapped = Edge (swap t) w
+
+-- |
+-- >>> filterEdges (Edge (1,2) 1.0) [(Edge (1,2) 5.0), (Edge (1,3) 2.0)]
+-- [Edge (1,3) 2.0]
+-- >>> filterEdges (Edge (1,2) 1.0) [(Edge (2,2) 5.0), (Edge (2,3) 2.0)]
+-- [Edge (2,2) 5.0,Edge (2,3) 2.0]
+filterEdges :: Edge -> [Edge] -> [Edge]
+filterEdges e = filter (not . comp e)
+  where
+    comp (Edge (x, y) _) (Edge (x', y') _) = x == x' && y == y'
+
 -- | Adds an Edge to the Graph.
 --
 -- No duplicates are expected if we add the same value twice:
