@@ -1,5 +1,7 @@
 {-# LANGUAGE TupleSections #-}
-module Dijkstra where
+module Dijkstra (
+    Dijkstra(..)
+  , getShortestPath) where
 
 import qualified Data.HashMap.Strict as HM
 import qualified Data.PQueue.Prio.Min as Queue
@@ -20,6 +22,10 @@ toVisit = lens _toVisit (\d x -> d { _toVisit = x})
 
 distScore :: Lens' Dijkstra (HM.HashMap Vertex Double)
 distScore = lens _distScore (\d x -> d { _distScore = x})
+
+getShortestPath :: Vertex -> Vertex -> Graph -> Maybe Double
+getShortestPath source goal g =
+  view (distScore . at goal) (runSearch (makeDijkstra source g) g)
 
 makeDijkstra :: Vertex -> Graph -> Dijkstra
 makeDijkstra start g =
