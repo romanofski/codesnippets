@@ -4,6 +4,8 @@ module JSON (
     fromFile
   , toGraph
   , parseOperations
+  , ShortestPath(..)
+  , shortestPathToType
   , MapOperation(..)) where
 
 import GHC.Generics (Generic)
@@ -82,3 +84,17 @@ instance FromJSON MapOperation where
       Just (x', y') -> QueryDistance <$> pure x' <*> pure y'
       Nothing -> fail "Unable to construct operation instance from JSON"
   parseJSON _ = mempty
+
+-- | Result type to JSON encode shortest distance calculated
+newtype ShortestPath = ShortestPath { distance :: Integer }
+  deriving (Show, Generic)
+
+-- |
+-- >>> encode (ShortestPath 10)
+-- "{\"distance\":10}"
+instance ToJSON ShortestPath where
+  toEncoding = genericToEncoding defaultOptions
+
+-- | convenience function to wrap the shortest path result in a type for encoding it to JSON
+shortestPathToType :: Maybe Double -> Maybe ShortestPath
+shortestPathToType = fmap (ShortestPath . round)
