@@ -1,9 +1,16 @@
-import JSON (fromFile, toGraph)
 import qualified Options.Applicative.Builder as Builder
-import Options.Applicative.Types (Parser)
+import Options.Applicative.Types (Parser, ReadM(..))
 import Options.Applicative (execParser, helper, (<**>))
 
-newtype Config = Config FilePath
+import JSON (fromFile, toGraph, parseOperations, MapOperation(..))
+import Dijkstra (getShortestPath)
+
+-- |
+-- TODO: this uses `String`, but we would prefer ByteString or Text
+mapOperation :: ReadM MapOperation
+mapOperation = Builder.eitherReader parseOperations
+
+data Config = Config FilePath MapOperation
 
 configParser :: Parser Config
 configParser =
@@ -11,6 +18,7 @@ configParser =
     Builder.argument Builder.str
         (Builder.metavar "FILE" <>
          Builder.help "File with map defined in JSON")
+    <*> Builder.argument mapOperation (Builder.metavar "OPS" <> Builder.help "Operations in JSON")
 
 main :: IO ()
 main = run =<< execParser opts
@@ -22,9 +30,8 @@ main = run =<< execParser opts
 
 
 run :: Config -> IO ()
-run (Config fp) = do
+run (Config fp (QueryDistance s d)) = do
   json <- fromFile fp
   case json of
     Left err -> print err
-    Right m -> do
-      print $ toGraph m
+    Right m -> print $ getShortestPath s d (toGraph m)
