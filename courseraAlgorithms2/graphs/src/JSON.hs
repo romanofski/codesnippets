@@ -1,12 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
-module JSON where
+module JSON (
+    fromFile
+  , toGraph
+  , parseOperations
+  , MapOperation(..)) where
 
-import GHC.Generics
+import GHC.Generics (Generic)
 import Data.Aeson
 import Data.List (elemIndex)
 import Data.Maybe (fromMaybe)
+import Control.Lens (both)
 import qualified Data.Map as Map
+import qualified Data.ByteString.Char8 as Char8
 
 import Graph (Graph, Vertex, Weight, buildUndirectedGraph)
 
@@ -49,3 +55,30 @@ edgeToNode k e =
 -- Just 26
 translateTownNameToVertex :: Char -> Maybe Vertex
 translateTownNameToVertex = flip elemIndex (['A'..'Z'] <> ['a'..'z'])
+
+
+-- | A map operation is used to query or add new vertices to the graph
+data MapOperation =
+    QueryDistance Vertex
+                  Vertex
+    deriving (Show)
+
+parseOperations :: String -> Either String MapOperation
+parseOperations = eitherDecodeStrict . Char8.pack
+
+-- |
+-- >>> :set -XOverloadedStrings
+-- >>> decode "{\"start\": \"A\", \"end\": \"B\"}" :: Maybe MapOperation
+-- Just (QueryDistance 0 1)
+-- >>> decode "{\"end\": [\"B\", \"C\"]}" :: Maybe MapOperation
+-- Nothing
+-- >>> decode "[\"A\", \"B\", \"C\"]" :: Maybe MapOperation
+-- Nothing
+instance FromJSON MapOperation where
+  parseJSON (Object v) = do
+    x <- v .: "start"
+    y <- v .: "end"
+    case both translateTownNameToVertex (x,y) of
+      Just (x', y') -> QueryDistance <$> pure x' <*> pure y'
+      Nothing -> fail "Unable to construct operation instance from JSON"
+  parseJSON _ = mempty
