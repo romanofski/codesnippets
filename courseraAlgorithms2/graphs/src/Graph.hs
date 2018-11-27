@@ -1,13 +1,10 @@
 -- Graph using a List: no O(1) lookup
 --
--- Order seems to be important the way you insert neighbours in the
--- adjacency list, since it influences the way searches generate the
--- neighbours to visit. Ok - not. The matter is not the order, but
--- applications like: find me the shortest path.
---
--- Doctests become slowly unmaintainable: they're missing setup code.
---
--- Quicktest tests are missing.
+-- Note for improvements: This code started in 2015. There are quite a bit of
+-- improvements to be made to make the usage much more flexible. First of, we
+-- should investigate to use more types for the different types of graphs in
+-- order to distinguish adding edges to each type. Speaking of edges, also those
+-- should use types to differentiate between weighted and un-weighted edges.
 --
 module Graph where
 
