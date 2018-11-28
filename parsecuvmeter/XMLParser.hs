@@ -10,6 +10,7 @@ module XMLParser where
 import Control.Applicative hiding ((<|>),many)
 import Text.Parsec
 import Text.Parsec.String
+import Control.Monad (void)
 
 type AttrName  = String
 type AttrValue = String
@@ -52,7 +53,7 @@ tag  = do
 
 xmlDecl :: Parser XML
 xmlDecl = do
-    string "<?xml"
+    void $ manyTill anyToken (string "<?xml") -- ignore the byte order mark
     decl <- many (noneOf "?>")
     string "?>"
     return (Decl decl)

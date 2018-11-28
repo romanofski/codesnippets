@@ -3,25 +3,42 @@
 import Text.Parsec
 import XMLParser
 import Data.Maybe
+import qualified Control.Exception as CE
+import Text.Read (readMaybe)
+import Data.ByteString.Lazy.Char8 as B
+import Network.HTTP.Conduit
+       (parseRequest, newManager, tlsManagerSettings, httpLbs,
+        responseBody)
 
--- | finds uvrating
---
--- >>> let xml = [Decl " version=\"1.0\" encoding=\"UTF-8\"",Element "stations" [] [Element "location" [Attribute ("id","adelaide")] [Element "name" [] [Body "adl"],Element "index" [] [Body "0.1"]]]]
--- >>> findRating "adelaide" xml
--- "0.1"
---
-findRating :: String -> [XML] ->  Maybe Float
-findRating locID (Element "stations" _ y:_) = findRating locID y
-findRating locID (Element "location" [Attribute attr] ys:xs)
-    | locID == snd attr = findRating locID ys
-    | otherwise = findRating locID xs
-findRating _ (Element "index" [] [Body rate]:_) = readMaybe rate
-findRating locID (_:xs) = findRating locID xs
-findRating _ [] = Nothing
+uvURL :: String
+uvURL = "https://uvdata.arpansa.gov.au/xml/uvvalues.xml"
+
+getData :: IO String
+getData =
+  CE.catch (do request <- parseRequest uvURL
+               manager <- newManager tlsManagerSettings
+               res <- httpLbs request manager
+               return $ B.unpack $ responseBody res)
+           errHandler
+  where errHandler
+          :: CE.SomeException -> IO String
+        errHandler _ = return "<Could not retrieve data>"
+
+textToXMLDocument :: String -> Either ParseError [XML]
+textToXMLDocument = parse document ""
+
+getUVRating :: String -> [XML] ->  Maybe Float
+getUVRating locID (Element "stations" _ y:_) = getUVRating locID y
+getUVRating locID (Element "location" [Attribute attr] ys:xs)
+    | locID == snd attr = getUVRating locID ys
+    | otherwise = getUVRating locID xs
+getUVRating _ (Element "index" [] [Body rate]:_) = readMaybe rate
+getUVRating locID (_:xs) = getUVRating locID xs
+getUVRating _ [] = Nothing
 
 main :: IO ()
 main = do
-    contents <- getContents
+    contents <- getData
     case (parse document "" contents) of
-        Right xml -> putStrLn $ findRating "brisbane" xml
-        Left  err -> putStrLn $ show err
+        Right xml -> print $ getUVRating "Brisbane" xml
+        Left  err -> print $ show err

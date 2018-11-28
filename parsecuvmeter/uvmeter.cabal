@@ -14,6 +14,9 @@ cabal-version:       >=1.10
 executable uvmeter
   main-is:             Main.hs
   other-modules:       XMLParser
-  build-depends:       base >=4.6 && <4.7
+  build-depends:       base
                      , parsec == 3.1.*
+                     , http-conduit
+                     , http-types
+                     , bytestring
   default-language:    Haskell2010
