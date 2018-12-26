@@ -1,0 +1,4 @@
+#!/bin/sh
+echo "stdout"
+>&2 echo "stderr"
+echo "stdout"

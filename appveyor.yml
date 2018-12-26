@@ -1,0 +1,25 @@
+build: off
+
+before_test:
+# http://help.appveyor.com/discussions/problems/6312-curl-command-not-found
+- set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
+
+- curl -sS -ostack.zip -L --insecure https://get.haskellstack.org/stable/windows-x86_64.zip
+- 7z x stack.zip stack.exe
+
+clone_folder: "c:\\stack"
+environment:
+  X64_EXT: -x64
+  EXECUTABLE: python.exe
+  PYTHON: C:/Python35
+  TEST_OPTIONS:
+  DEPLOY: NO
+  global:
+    STACK_ROOT: "c:\\sr"
+
+test_script:
+# The ugly echo "" hack is to avoid complaints about 0 being an invalid file
+# descriptor
+#- '%PYTHON%\%EXECUTABLE% interleavedOutput/capture.py'
+#- bash interleavedOutput/print
+- echo "" | stack --resolver lts-12.5 script --package async --package stm --package bytestring --package typed-process --package process --package temporary interleavedOutput/Main.hs
