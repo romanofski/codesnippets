@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack --resolver lts-12.5 script --package async --package stm --package bytestring --package typed-process --package process --package temporary
+-- stack --resolver lts-12.5 script --ghc-options "-threaded" --package async,stm,bytestring,typed-process,process,temporary
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DataKinds #-}
 import System.Process.Typed
@@ -9,7 +9,7 @@ import GHC.IO.Handle (hGetContents, hGetLine, hClose, Handle)
 import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
 import Control.Exception (catch, throwIO)
-import Control.Concurrent.Async (async)
+import Control.Concurrent.Async (async, wait)
 import Control.Concurrent.STM (atomically, STM, throwSTM, readTMVar, tryPutTMVar
                               , newEmptyTMVarIO, putTMVar)
 import qualified Data.ByteString.Lazy as L
@@ -24,28 +24,37 @@ main = do
   argv <- getArgs
   -- !!! no args -> crash !!
   withSystemTempFile "interleaved-output" $ \fp h -> do
-    B.hPut h "\necho 'stdout'\n>&2 echo 'stderr'\necho 'stdout'"
+    B.hPut h "\nfor i in {1..4064}; do\necho 'stdout';\n>&2 echo 'stderr';\necho 'stdout';\ndone"
     hClose h
 
     let config = proc "bash" [fp]
 
-    print "Capturing"
     (exitc, out) <- readProcessInterleaved config
     print out
 
 readProcessInterleaved
   :: ProcessConfig stdinClosed stdout stderr
-  -> IO (ExitCode, String)
+  -> IO (ExitCode, L.ByteString)
 readProcessInterleaved pc = do
-    (readEnd, writeEnd) <- P.createPipe
-    exitc' <- withProcess (setStderr (useHandleOpen writeEnd) $ setStdout (useHandleOpen writeEnd) pc') $ \p -> atomically $ do
-       exitc <- waitExitCodeSTM p
-       pure exitc
-    hClose writeEnd
-    c <- hGetContents readEnd
-    pure (exitc', c)
-  where
-    pc' = setStdin closed pc
+  mvar <- newEmptyTMVarIO
+  (readEnd, writeEnd) <- P.createPipe
+  t <- async $ do
+        let loop front = do
+                bs <- B.hGetSome readEnd defaultChunkSize
+                if B.null bs
+                    then atomically $ putTMVar mvar $ Right $ L.fromChunks $ front []
+                    else loop $ front . (bs:)
+            pc = proc "" []
+        loop id `catch` \e -> do
+            atomically $ void $ tryPutTMVar mvar $ Left $ ByteStringOutputException e pc
+            throwIO e
+        pure (readTMVar mvar >>= either throwSTM return, hClose readEnd)
+  exit <- withProcess
+    (setStdin closed $
+     setStderr (useHandleOpen writeEnd) $
+     setStdout (useHandleOpen writeEnd) pc) (atomically . waitExitCodeSTM)
+  out <- wait t >>= atomically . fst
+  pure (exit, out)
 
 byteStringOutput' :: Handle -> StreamSpec 'STOutput (STM L.ByteString)
 byteStringOutput' h = mkStreamSpec (P.UseHandle h) $ \pc Nothing -> do

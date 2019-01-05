@@ -1,4 +1,6 @@
 #!/bin/sh
-echo "stdout"
->&2 echo "stderr"
-echo "stdout"
+for i in {1..100}; do
+echo "stdout";
+>&2 echo "stderr";
+echo "stdout";
+done
